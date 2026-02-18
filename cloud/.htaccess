@@ -1,0 +1,20 @@
+# begin VFM rules
+<IfModule mod_rewrite.c>
+RewriteEngine on
+
+# Set Base Path (Tetap dipertahankan karena efektif untuk subdirektori)
+RewriteCond %{REQUEST_URI}::$1 ^(.*?/)(.*)::\2$ RewriteRule ^(.*)$ - [E=BASE:%1]
+
+# Aturan 1: Download Share
+# Hapus pengecekan file/fisik (-f/-d) karena ini path virtual. 
+# Tambahkan ^ untuk presisi dan QSA untuk mendukung query string tambahan.
+RewriteRule ^download/(.*)/sh/(.*)/share/(.*)$ %{ENV:BASE}/admin/vfm-downloader.php?q=$1&sh=$2&share=$3 [L,QSA]
+
+# Aturan 2: Download Hash
+RewriteRule ^download/(.*)/h/(.*)$ %{ENV:BASE}/admin/vfm-downloader.php?q=$1&h=$2 [L,QSA]
+
+# Aturan 3: Download Zip
+RewriteRule ^download/zip/(.*)/n/(.*)$ %{ENV:BASE}/admin/vfm-downloader.php?zip=$1&n=$2 [L,QSA]
+
+</IfModule>
+# end VFM rules

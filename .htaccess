@@ -1,0 +1,19 @@
+# begin VFM rules
+<IfModule mod_rewrite.c>
+RewriteEngine on
+
+# Atur BASE secara dinamis (tidak diubah karena sudah efektif)
+RewriteCond %{REQUEST_URI}::$1 ^(.*?/)(.*)::\2$ RewriteRule ^(.*)$ - [E=BASE:%1]
+
+# Rule 1: Download dengan Share Hash
+# Pola spesifik tidak perlu cek -f/-d agar lebih cepat
+RewriteRule ^download/(.*)/sh/(.*)/share/(.*)$ %{ENV:BASE}/admin/vfm-downloader.php?q=$1&sh=$2&share=$3 [L,QSA]
+
+# Rule 2: Download dengan Hash
+RewriteRule ^download/(.*)/h/(.*)$ %{ENV:BASE}/admin/vfm-downloader.php?q=$1&h=$2 [L,QSA]
+
+# Rule 3: Download Zip
+RewriteRule ^download/zip/(.*)/n/(.*)$ %{ENV:BASE}/admin/vfm-downloader.php?zip=$1&n=$2 [L,QSA]
+
+</IfModule>
+# end VFM rules
