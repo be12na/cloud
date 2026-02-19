@@ -265,11 +265,8 @@ if ($gateKeeper->isAccessAllowed() && $location->editAllowed('../../') && $gateK
                         || $file->isValidForThumb()
                         || $file->isValidForVideo()
                     ) {
-                        $data['icon'] .= '<div class="minibtn"><a class="round-btn" href="'.$downlink.'"';
-                        // $data['icon'] .= '<div class="minibtn" data-bs-toggle="tooltip" title="HERE YOUR MESSAGE"><a class="round-btn" href="'.$downlink.'"';
-                        if ($directlinks) {
-                            $data['icon'] .= ' target="_blank"';
-                        }
+                        $data['icon'] .= '<div class="minibtn"><a class="round-btn" href="'.$downlink.'" download';
+                        // $data['icon'] .= '<div class="minibtn" data-bs-toggle="tooltip" title="HERE YOUR MESSAGE"><a class="round-btn" href="'.$downlink.'" download';
                         $data['icon'] .= '>';
                         $data['icon'] .= '<i class="bi bi-download"></i></a></div>';
                     }

@@ -90,7 +90,10 @@ if ($json_file && is_numeric($getfile)) {
                         file_put_contents($share_json, json_encode($datarray), LOCK_EX);
                     }
 
-                    if ($setUp->getConfig('direct_links')) {
+                    // Force download for images/videos (skip direct_links redirect)
+                    $force_download = $downloader->isMediaFile($headers['filename']);
+
+                    if ($setUp->getConfig('direct_links') && !$force_download) {
                         if ($headers['content_type'] == 'audio/mp3') {
                             $logger->logPlay($headers['trackfile']);
                         } else {
@@ -98,6 +101,12 @@ if ($json_file && is_numeric($getfile)) {
                         }
                         header('Location: ' . $script_url . base64_decode($getfile));
                         exit;
+                    }
+
+                    // Force attachment disposition for media files
+                    if ($force_download) {
+                        $headers['disposition'] = 'attachment';
+                        $headers['content_type'] = 'application/octet-stream';
                     }
 
                     if ($downloader->download(
@@ -130,7 +139,10 @@ if ($getfile && $hash
     if (($gateKeeper->isUserLoggedIn() && $downloader->subDir($headers['dirname']) == true) 
         || $gateKeeper->isLoginRequired() == false
     ) {
-        if ($setUp->getConfig('direct_links')) {
+        // Force download for images/videos (skip direct_links redirect)
+        $force_download = $downloader->isMediaFile($headers['filename']);
+
+        if ($setUp->getConfig('direct_links') && !$force_download) {
             if ($headers['content_type'] == 'audio/mp3') {
                 $logger->logPlay($headers['trackfile']);
             } else {
@@ -142,6 +154,12 @@ if ($getfile && $hash
 
         if ($headers['content_type'] == 'audio/mp3') {
             $logger->logPlay($headers['trackfile']);
+        }
+
+        // Force attachment disposition for media files
+        if ($force_download) {
+            $headers['disposition'] = 'attachment';
+            $headers['content_type'] = 'application/octet-stream';
         }
 
         if ($downloader->download(

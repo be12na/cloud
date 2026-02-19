@@ -38,6 +38,23 @@ if (!class_exists('Downloader', false)) {
         }
 
         /**
+         * Check if file is an image or video (media that browsers display inline)
+         *
+         * @param string $filename file name to check
+         *
+         * @return bool true if file is image or video
+         */
+        public function isMediaFile($filename)
+        {
+            $media_exts = array(
+                'jpg', 'jpeg', 'gif', 'png', 'webp', 'bmp', 'svg',
+                'mp4', 'webm', 'ogg', 'ogv', 'mov', 'avi', 'mkv',
+            );
+            $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+            return in_array($ext, $media_exts);
+        }
+
+        /**
          * The safe way
          *
          * @param string $checkfile file to check
