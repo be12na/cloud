@@ -125,7 +125,7 @@ if ($setUp->getConfig("txt_direction") == "RTL") {
 
 <header class="navbar fixed-top bg-dark flex-md-nowrap shadow navbar-expand">
     <div class="container-fluid">
-        <a class="navbar-brand me-0 px-3 flex-grow-1" href="./"><?php print $setUp->getConfig('appname'); ?></a>
+        <a class="navbar-brand me-0 px-3 flex-grow-1" href="<?php echo $setUp->getConfig('script_url'); ?>admin/"><?php print $setUp->getConfig('appname'); ?></a>
         <div class="collapse navbar-collapse">
             <ul class="nav navbar-nav ms-auto">
                 <li class="nav-item d-inline-block d-md-none">
@@ -137,7 +137,7 @@ if ($setUp->getConfig("txt_direction") == "RTL") {
                     <a class="nav-link" href="<?php echo $setUp->getConfig('script_url'); ?>"><i class="bi bi-house-door"></i></a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="../?logout" title="<?php echo $setUp->getString("log_out"); ?>"><i class="bi bi-box-arrow-right"></i> </a>
+                    <a class="nav-link" href="<?php echo $setUp->getConfig('script_url'); ?>?logout" title="<?php echo $setUp->getString("log_out"); ?>"><i class="bi bi-box-arrow-right"></i> </a>
                 </li>
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">

@@ -252,7 +252,7 @@ if ($getdownloadlist && file_exists($share_json)) {
 
 if ($expired === true) { ?>
     <div class="col-12 text-center">
-        <a class="btn btn-primary btn-lg" href="./"><?php echo $setUp->getString("link_expired"); ?></a>
+        <a class="btn btn-primary btn-lg" href="<?php echo $setUp->getConfig('script_url'); ?>"><?php echo $setUp->getString("link_expired"); ?></a>
     </div>
     <?php
 }

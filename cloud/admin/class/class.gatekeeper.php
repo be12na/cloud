@@ -109,6 +109,14 @@ if (!class_exists('GateKeeper', false)) {
             $_SESSION['vfm_user_used'] = null;
             GateKeeper::removeCookie($unsetuser, $relative);
             // session_destroy(); // keep language selection and minor preferences
+
+            // Redirect to main URL after logout
+            $setUp = SetUp::getInstance();
+            $script_url = $setUp ? $setUp->getConfig('script_url') : false;
+            if ($script_url) {
+                header('Location: ' . $script_url);
+                exit;
+            }
         }
 
         /**
