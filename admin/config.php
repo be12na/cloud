@@ -16,7 +16,7 @@
   'browser_lang' => false,
   'clipboard' => true,
   'copy_enable' => true,
-  'credits' => 'CLOUD',
+  'credits' => 'CLOUD2',
   'credits_link' => 'https://berna.biz.id',
   'debug_mode' => false, // Pastikan FALSE di production
   'debug_smtp' => false,
@@ -212,7 +212,7 @@
   'rename_dir_enable_contributor' => false,
   
   // ================== TEMA ==================
-  '--color-primary' => 'hsl(0, 100%, 40%)',
+  '--color-primary' => 'hsl(216, 98%, 52%)',
   '--color-dark' => 'hsl(0, 0%, 0%)',
   '--color-light' => 'hsl(210, 16%, 98%)',
   'overwrite_files' => 'no',
