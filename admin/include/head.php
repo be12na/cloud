@@ -81,9 +81,9 @@ if ($gateKeeper->isAccessAllowed()) {
 
 $template = new Template();
 
-$getdownloadlist = filter_input(INPUT_GET, "dl", FILTER_SANITIZE_SPECIAL_CHARS);
-$getrp = filter_input(INPUT_GET, "rp", FILTER_SANITIZE_SPECIAL_CHARS);
-$getreg = filter_input(INPUT_GET, "reg", FILTER_SANITIZE_SPECIAL_CHARS);
+$getdownloadlist = filter_input(INPUT_GET, "dl", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+$getrp = filter_input(INPUT_GET, "rp", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+$getreg = filter_input(INPUT_GET, "reg", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
 $rtl_ext = '';
 $rtl_att = '';

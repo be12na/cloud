@@ -41,8 +41,8 @@ if (!class_exists('Dirs', false)) {
          */
         public function openDir($fullpath, $relative = '')
         {
-            global $setUp;
-            global $gateKeeper;
+            $setUp = SetUp::getInstance();
+            $gateKeeper = GateKeeper::getInstance();
 
             $totdirs = count($this->location->path);
             $father = $this->location->getDir(false, true, false, $totdirs -1);

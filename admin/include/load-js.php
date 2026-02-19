@@ -48,7 +48,7 @@ if ($gateKeeper->isAccessAllowed()) :
 
     $filetableconfig['pagination_type'] = ($setUp->getConfig("show_pagination_num") === true) ? 'full_numbers' : 'simple';
     $filetableconfig['show_search'] = $setUp->getConfig("show_search");
-    $filetableconfig['search'] = filter_input(INPUT_GET, 's', FILTER_SANITIZE_SPECIAL_CHARS);
+    $filetableconfig['search'] = filter_input(INPUT_GET, 's', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
     $filecoulmns = array();
 
@@ -109,7 +109,7 @@ if ($gateKeeper->isAccessAllowed()) :
     $foldertableconfig['top_pagination'] = $setUp->getConfig("top_pagination_folder") ? 'on' : 'off';
 
     $foldertableconfig['pagination_type'] = ($setUp->getConfig('show_pagination_num_folder') === true) ? 'full_numbers' : 'simple';
-    $foldertableconfig['search'] = filter_input(INPUT_GET, 'sd', FILTER_SANITIZE_SPECIAL_CHARS);
+    $foldertableconfig['search'] = filter_input(INPUT_GET, 'sd', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
     $foldercoulmns = array();
 

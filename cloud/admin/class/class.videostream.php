@@ -32,7 +32,7 @@ if (!class_exists('VideoStream', false)) {
          *
          * @param string $filePath file path
          */
-        function __construct($filePath)
+        public function __construct($filePath)
         {
             $path = dirname(dirname(dirname(__FILE__))).'/'.urldecode(base64_decode($filePath));
             $this->_path = $path;
@@ -45,7 +45,7 @@ if (!class_exists('VideoStream', false)) {
          */
         public function checkVideo()
         {
-            global $setUp;
+            $setUp = SetUp::getInstance();
 
             $realsetup = realpath('../.'.$setUp->getConfig('starting_dir'));
             $realfile = realpath($this->_path);
@@ -159,7 +159,7 @@ if (!class_exists('VideoStream', false)) {
          *
          * @return start stream
          */
-        function _start()
+        public function _start()
         {
             $this->_open();
             $this->_setHeader();

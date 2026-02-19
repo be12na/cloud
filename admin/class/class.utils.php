@@ -35,7 +35,7 @@ if (!class_exists('Utils', false)) {
         public static function verifyCsrfToken($token = null)
         {
             if ($token === null) {
-                $token = filter_input(INPUT_POST, 'csrf_token', FILTER_SANITIZE_SPECIAL_CHARS);
+                $token = filter_input(INPUT_POST, 'csrf_token', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
             }
             if (empty($token) || empty($_SESSION['csrf_token'])) {
                 return false;
@@ -125,8 +125,8 @@ if (!class_exists('Utils', false)) {
             if ($setUp->getConfig($feat) !== true) {
                 return true;
             }
-            $gcaptcha = filter_input(INPUT_POST, 'g-recaptcha-response', FILTER_SANITIZE_SPECIAL_CHARS);
-            $postcaptcha = filter_input(INPUT_POST, 'captcha', FILTER_SANITIZE_SPECIAL_CHARS);
+            $gcaptcha = filter_input(INPUT_POST, 'g-recaptcha-response', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+            $postcaptcha = filter_input(INPUT_POST, 'captcha', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
             if ($postcaptcha) {
                 $postcaptcha = strtolower($postcaptcha);
@@ -201,6 +201,9 @@ if (!class_exists('Utils', false)) {
         public static function getFileSize($path)
         {
             $size = filesize($path);
+            if ($size === false) {
+                return false;
+            }
 
             if (!($file = fopen($path, 'rb'))) {
                 return false;
@@ -496,15 +499,13 @@ if (!class_exists('Utils', false)) {
                     $mail->Password = $setUp->getConfig('email_pass');
                 }
 
-                if (version_compare(PHP_VERSION, '7.0.0', '>=')) {
-                    $mail->SMTPOptions = array(
-                        'ssl' => array(
-                            'verify_peer' => true,
-                            'verify_peer_name' => true,
-                            'allow_self_signed' => false,
-                        )
-                    );
-                }
+                $mail->SMTPOptions = array(
+                    'ssl' => array(
+                        'verify_peer' => true,
+                        'verify_peer_name' => true,
+                        'allow_self_signed' => false,
+                    )
+                );
 
                 if ($setUp->getConfig('secure_conn') !== 'none') {
                     $mail->SMTPSecure = $setUp->getConfig('secure_conn');

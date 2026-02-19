@@ -22,6 +22,8 @@ require_once dirname(dirname(__FILE__)).'/class/class.gatekeeper.php';
 $setUp = new SetUp();
 $gateKeeper = new GateKeeper();
 
+header('Content-Type: application/json');
+
 // Must be logged in
 if (!$gateKeeper->isUserLoggedIn()) {
     echo json_encode(array('status' => 'error', 'message' => 'Unauthorized'));
@@ -40,7 +42,8 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-$appname = filter_input(INPUT_POST, 'appname', FILTER_SANITIZE_SPECIAL_CHARS);
+$appname = filter_input(INPUT_POST, 'appname', FILTER_DEFAULT);
+$appname = $appname !== null ? htmlspecialchars(trim($appname), ENT_QUOTES, 'UTF-8') : '';
 $script_url = filter_input(INPUT_POST, 'script_url', FILTER_SANITIZE_URL);
 
 $errors = array();
@@ -81,6 +84,11 @@ if (file_exists($configPath.'/config.json')) {
     require $configPath.'/config.php';
 } else {
     echo json_encode(array('status' => 'error', 'message' => 'Config file not found'));
+    exit;
+}
+
+if (!is_array($_CONFIG)) {
+    echo json_encode(array('status' => 'error', 'message' => 'Config data is corrupt'));
     exit;
 }
 

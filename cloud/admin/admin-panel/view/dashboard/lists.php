@@ -95,6 +95,26 @@
                                     <label class="form-check-label" for="playvideo"><i class="bi bi-film"></i> <?php print $setUp->getString("video_player"); ?></label>
                                 </div>
                             </div>
+
+                            <div class="col-12 mb-2">
+                                <?php $formchecked = $setUp->getConfig('video_thumbnails') ? ' checked' : ''; ?>
+                                <?php $ffmpegAvail = ImageServer::isEnabledFfmpeg(); ?>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" role="switch" type="checkbox" name="video_thumbnails" id="video_thumbnails" <?php echo $formchecked; ?>>
+                                    <label class="form-check-label" for="video_thumbnails"><i class="bi bi-camera-reels"></i> <?php print $setUp->getString("video_thumbnails"); ?></label>
+                                    <?php if ($ffmpegAvail) { ?>
+                                    <small class="text-success"><i class="bi bi-check-circle"></i> ffmpeg: <?php echo htmlspecialchars($ffmpegAvail); ?></small>
+                                    <?php } else { ?>
+                                    <small class="text-danger"><i class="bi bi-x-circle"></i> ffmpeg <?php print $setUp->getString("not_found"); ?></small>
+                                    <?php } ?>
+                                </div>
+                            </div>
+
+                            <div class="col-12 mb-2">
+                                <label class="form-label"><i class="bi bi-terminal"></i> <?php print $setUp->getString("ffmpeg_path"); ?></label>
+                                <input type="text" class="form-control" name="ffmpeg_path" placeholder="ffmpeg" value="<?php echo htmlspecialchars($setUp->getConfig('ffmpeg_path')); ?>">
+                                <small class="form-text text-muted"><?php print $setUp->getString("ffmpeg_path_hint"); ?></small>
+                            </div>
                         </div>
                     </div> <!-- col-sm-6 LEFT -->
 

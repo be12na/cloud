@@ -24,7 +24,7 @@ if (!$gateKeeper->isAccessAllowed()) {
     die();
 }
 // update list view
-$listview = filter_input(INPUT_POST, "listview", FILTER_SANITIZE_SPECIAL_CHARS);
+$listview = filter_input(INPUT_POST, "listview", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 // $listview = htmlspecialchars($_POST['listview']);
 if ($listview) {
     $listdefault = $setUp->getConfig('list_view') ? $setUp->getConfig('list_view') : 'list';
@@ -39,7 +39,7 @@ if ($ilength) {
 }
 
 $sort_col = filter_input(INPUT_POST, "sort_col", FILTER_VALIDATE_INT);
-$sort_order = filter_input(INPUT_POST, "sort_order", FILTER_SANITIZE_SPECIAL_CHARS);
+$sort_order = filter_input(INPUT_POST, "sort_order", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 // $sort_order = htmlspecialchars($_POST['sort_order']);
 if ($sort_col && $sort_order) {
     $_SESSION['sort_col'] = $sort_col;
@@ -50,7 +50,7 @@ if ($dirlength) {
     $_SESSION['dirlength'] = $dirlength;
 }
 $sort_dir_col = filter_input(INPUT_POST, "sort_dir_col", FILTER_VALIDATE_INT);
-$sort_dir_order = filter_input(INPUT_POST, "sort_dir_order", FILTER_SANITIZE_SPECIAL_CHARS);
+$sort_dir_order = filter_input(INPUT_POST, "sort_dir_order", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 // $sort_dir_order = htmlspecialchars($_POST['sort_dir_order']);
 if ($sort_dir_col && $sort_dir_order) {
     $_SESSION['sort_dir_col'] = $sort_dir_col;

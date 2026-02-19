@@ -13,8 +13,13 @@ if (!isset($_SERVER['HTTP_X_REQUESTED_WITH'])
 ) {
     exit;
 }
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
+if ($_CONFIG['debug_mode'] ?? false) {
+    error_reporting(E_ALL);
+    ini_set('display_errors', 1);
+} else {
+    error_reporting(E_ALL & ~E_DEPRECATED & ~E_NOTICE);
+    ini_set('display_errors', 0);
+}
 require_once dirname(dirname(__FILE__)).'/class/class.gatekeeper.php';
 require_once dirname(dirname(__FILE__)).'/class/class.setup.php';
 require_once dirname(dirname(__FILE__)).'/class/class.utils.php';
@@ -29,12 +34,12 @@ $resetter = new Resetter();
 $lang = $setUp->lang;
 
 $dest = filter_input(INPUT_POST, "user_email", FILTER_VALIDATE_EMAIL);
-$pulito = filter_input(INPUT_POST, 'cleanurl', FILTER_SANITIZE_SPECIAL_CHARS);
+$pulito = filter_input(INPUT_POST, 'cleanurl', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 // $pulito = htmlspecialchars($_POST['cleanurl']);
 
 $setfrom = $setUp->getConfig('email_from');
 
-if ($setfrom == null) {
+if ($setfrom === null || $setfrom === '' || $setfrom === false) {
     echo '<div class="alert alert-danger">'.$setUp->getString('setup_email_application').'</div>';
     exit();
 }
@@ -66,39 +71,8 @@ require_once dirname(dirname(__FILE__)).'/assets/mail/vendor/autoload.php';
 
 $mail = new PHPMailer();
 
-$mail->CharSet = 'UTF-8';
-$mail->setLanguage($lang);
+Utils::configureSMTP($mail, $setUp, $lang);
 
-if ($setUp->getConfig('smtp_enable') == true) {
-
-    $mail->isSMTP();
-    $mail->SMTPDebug = ($setUp->getConfig('debug_smtp') ? 2 : 0);
-    $mail->Debugoutput = 'html';
-    
-    $smtp_auth = $setUp->getConfig('smtp_auth');
-    $mail->Host = $setUp->getConfig('smtp_server');
-    $mail->Port = (int)$setUp->getConfig('port');
-
-    if (version_compare(PHP_VERSION, '5.6.0', '>=')) {
-        $mail->SMTPOptions = array(
-            'ssl' => array(
-                'verify_peer' => false,
-                'verify_peer_name' => false,
-                'allow_self_signed' => true,
-            )
-        );
-    }
-    if ($setUp->getConfig('secure_conn') !== "none") {
-        $mail->SMTPSecure = $setUp->getConfig('secure_conn');
-    }
-    
-    $mail->SMTPAuth = $smtp_auth;
-
-    if ($smtp_auth == true) {
-        $mail->Username = $setUp->getConfig('email_login');
-        $mail->Password = $setUp->getConfig('email_pass');
-    }
-}
 $mail->setFrom($setfrom, $setUp->getConfig('appname'));
 $mail->addAddress($dest, '<'.$dest.'>');
 

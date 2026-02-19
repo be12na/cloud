@@ -19,9 +19,9 @@ if (!class_exists('Updater', false)) {
          */
         public function init()
         {
-            global $updater;
-            $posteditname = filter_input(INPUT_POST, "user_new_name", FILTER_SANITIZE_SPECIAL_CHARS);
-            $postoldname = filter_input(INPUT_POST, "user_old_name", FILTER_SANITIZE_SPECIAL_CHARS);
+            $updater = $this;
+            $posteditname = filter_input(INPUT_POST, "user_new_name", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+            $postoldname = filter_input(INPUT_POST, "user_old_name", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
             $posteditpass = isset($_POST['user_new_pass']) ? $_POST['user_new_pass'] : false;
             $posteditpasscheck = isset($_POST['user_new_pass_confirm']) ? $_POST['user_new_pass_confirm'] : false;
             $postoldpass = isset($_POST['user_old_pass']) ? $_POST['user_old_pass'] : false;
@@ -63,9 +63,9 @@ if (!class_exists('Updater', false)) {
             $posteditmail,
             $postoldmail
         ) {
-            global $setUp;
-            global $updater;
-            global $gateKeeper;
+            $setUp = SetUp::getInstance();
+            $updater = $this;
+            $gateKeeper = GateKeeper::getInstance();
 
             $passa = true;
             $new_users = false;
@@ -112,7 +112,7 @@ if (!class_exists('Updater', false)) {
                         if ($customfield['type'] == 'email') {
                             $cleanfield = filter_input(INPUT_POST, $customkey, FILTER_VALIDATE_EMAIL);
                         } else {
-                            $cleanfield = filter_input(INPUT_POST, $customkey, FILTER_SANITIZE_SPECIAL_CHARS);
+                            $cleanfield = filter_input(INPUT_POST, $customkey, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
                         }
                         if ($cleanfield) {
                             $new_users = $updater->updateUserData($postoldname, $customkey, $cleanfield, $new_users);
@@ -139,14 +139,14 @@ if (!class_exists('Updater', false)) {
          */
         public function updateUserPwd($checkname, $changepass, $users = false)
         {
-            global $setUp;
-            global $gateKeeper;
+            $setUp = SetUp::getInstance();
+            $gateKeeper = GateKeeper::getInstance();
             $users = is_array($users) ? $users : $gateKeeper->getUsers();
 
             foreach ($users as $key => $value) {
                 if (strtolower($value['name']) === strtolower($checkname)) {
                     $salt = $setUp->getConfig('salt');
-                    $users[$key]['pass'] = crypt($salt.urlencode($changepass), Utils::randomString());
+                    $users[$key]['pass'] = Utils::hashPassword($salt, $changepass);
                     break;
                 }
             }
@@ -165,7 +165,7 @@ if (!class_exists('Updater', false)) {
          */
         public function updateUserData($checkname, $type, $changeval, $users = false)
         {
-            global $gateKeeper;
+            $gateKeeper = GateKeeper::getInstance();
             $users = is_array($users) ? $users : $gateKeeper->getUsers();
 
             foreach ($users as $key => $value) {
@@ -221,7 +221,7 @@ if (!class_exists('Updater', false)) {
         {
             // global $_USERS;
             // global $users;
-            global $gateKeeper;
+            $gateKeeper = GateKeeper::getInstance();
             $_USERS = $gateKeeper->getUsers();
             $users = $_USERS;
 
@@ -246,7 +246,7 @@ if (!class_exists('Updater', false)) {
          */
         public function findUser($userdata, $email = false)
         {
-            global $gateKeeper;
+            $gateKeeper = GateKeeper::getInstance();
             $_USERS = $gateKeeper->getUsers();
             $attr = $email ? 'email' : 'name';
             if (is_array($_USERS)) {
@@ -271,7 +271,7 @@ if (!class_exists('Updater', false)) {
          */
         public function findUserPre($userdata, $email = false)
         {
-            global $gateKeeper;
+            $gateKeeper = GateKeeper::getInstance();
             $newusers = $gateKeeper->getUsersNew();
             $attr = $email ? 'email' : 'name';
             if (is_array($newusers)) {
@@ -297,8 +297,8 @@ if (!class_exists('Updater', false)) {
          */
         public function findUserKey($userdata)
         {
-            global $setUp;
-            global $gateKeeper;
+            $setUp = SetUp::getInstance();
+            $gateKeeper = GateKeeper::getInstance();
 
             $newusers = $gateKeeper->getUsersNew();
             $defaultfolders = $setUp->getConfig('registration_user_folders');
@@ -355,12 +355,11 @@ if (!class_exists('Updater', false)) {
          */
         public function updateUserFile($option = '', $postname = false, $users = false)
         {
-            global $setUp;
+            $setUp = SetUp::getInstance();
 
             if ($users) {
-                $usrs = '$_USERS = ';
-                $filepath = dirname(dirname(__FILE__)).'/_content/users/users.php';
-                if (false === (file_put_contents($filepath, "<?php\n\n $usrs".var_export($users, true).";\n"))) {
+                $jsonpath = dirname(dirname(__FILE__)).'/_content/users/users.json';
+                if (!Utils::saveJson($jsonpath, $users)) {
                     Utils::setError('error updating users list');
                 } else {
                     if ($option == 'password') {
@@ -391,8 +390,7 @@ if (!class_exists('Updater', false)) {
         public function updateRegistrationFile($newusers)
         {
             $path = dirname(dirname(__FILE__)).'/_content/users/';
-            $usrs = '$newusers = ';
-            if (false == (file_put_contents($path.'users-new.php', "<?php\n\n $usrs".var_export($newusers, true).";\n"))) {
+            if (!Utils::saveJson($path.'users-new.json', $newusers)) {
                 return false;
             } else {
                 return true;
@@ -449,7 +447,7 @@ if (!class_exists('Updater', false)) {
          */
         public function updateUploadsDir($new_dir = false)
         {
-            global $setUp;
+            $setUp = SetUp::getInstance();
 
             $old_dir = $setUp->getConfig('starting_dir');
             $oldDir = dirname(dirname(dirname(__FILE__))).'/'.basename($old_dir);
@@ -534,20 +532,49 @@ if (!class_exists('Updater', false)) {
 
             $insertion = array();
             if ($starting_dir !== './') {
-                $insertion[] = "<Files \"*.php\">";
-                $insertion[] = "SetHandler none";
-                $insertion[] = "SetHandler default-handler";
+                // Disable directory listing
+                $insertion[] = "Options -Indexes";
+                $insertion[] = "";
+                // Block PHP execution (compatible with mod_php AND PHP-FPM/FastCGI)
+                $insertion[] = "<FilesMatch \"\.ph(p[3457s]?|t|tml)$\">";
+                $insertion[] = "    <IfModule mod_authz_core.c>";
+                $insertion[] = "        Require all denied";
+                $insertion[] = "    </IfModule>";
+                $insertion[] = "    <IfModule !mod_authz_core.c>";
+                $insertion[] = "        Order deny,allow";
+                $insertion[] = "        Deny from all";
+                $insertion[] = "    </IfModule>";
+                $insertion[] = "</FilesMatch>";
+                $insertion[] = "";
+                // Disable CGI execution
                 $insertion[] = "Options -ExecCGI";
-                $insertion[] = "RemoveHandler .php";
-                $insertion[] = "</Files>";
+                $insertion[] = "";
+                // Disable PHP engine for mod_php variants
+                $insertion[] = "<IfModule mod_php.c>";
+                $insertion[] = "    <FilesMatch \"\.php$\">";
+                $insertion[] = "        php_flag engine off";
+                $insertion[] = "    </FilesMatch>";
+                $insertion[] = "</IfModule>";
+                $insertion[] = "<IfModule mod_php7.c>";
+                $insertion[] = "    <FilesMatch \"\.php$\">";
+                $insertion[] = "        php_flag engine off";
+                $insertion[] = "    </FilesMatch>";
+                $insertion[] = "</IfModule>";
                 $insertion[] = "<IfModule mod_php5.c>";
-                $insertion[] = "php_flag engine off";
+                $insertion[] = "    <FilesMatch \"\.php$\">";
+                $insertion[] = "        php_flag engine off";
+                $insertion[] = "    </FilesMatch>";
                 $insertion[] = "</IfModule>";
                 if (!$direct_links) {
-                    $insertion[] = "Order Deny,Allow";
-                    $insertion[] = "Deny from all";
+                    $insertion[] = "";
+                    $insertion[] = "<IfModule mod_authz_core.c>";
+                    $insertion[] = "    Require all denied";
+                    $insertion[] = "</IfModule>";
+                    $insertion[] = "<IfModule !mod_authz_core.c>";
+                    $insertion[] = "    Order Deny,Allow";
+                    $insertion[] = "    Deny from all";
+                    $insertion[] = "</IfModule>";
                 }
-                $insertion[] = "Options -Indexes";
             } else {
                 // if ($direct_links) {
                     $insertion[] = "<IfModule mod_rewrite.c>";

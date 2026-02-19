@@ -27,7 +27,8 @@ if ($location->editAllowed() && ($gateKeeper->isAllowed('upload_enable') || $gat
             $upload_class = "col-sm-6";
         } ?>
         <form enctype="multipart/form-data" method="post" id="upForm" action="<?php echo htmlspecialchars($post_url);?>" class="mb-2 <?php echo $upload_class; ?>">
-            <input type="hidden" name="location" value="<?php echo $location->getDir(true, false, false, 0); ?>">       
+            <?php echo Utils::csrfField(); ?>
+            <input type="hidden" name="location" value="<?php echo $location->getDir(true, false, false, 0); ?>">
             <div id="upload_container" class="input-group">
                 <span class="input-group-text ie_hidden">
                     <i class="bi bi-file-earmark-plus"></i>

@@ -18,7 +18,7 @@ if (!$gateKeeper->isAccessAllowed() && $setUp->getConfig('share_playvideo') !== 
     die('Access denied');
 }
 // $get = htmlspecialchars($_GET['vid']);
-$get = filter_input(INPUT_GET, 'vid', FILTER_SANITIZE_SPECIAL_CHARS);
+$get = filter_input(INPUT_GET, 'vid', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 require_once dirname(dirname(__FILE__)).'/class/class.videostream.php';
 if ($get) {
     $stream = new VideoStream($get);

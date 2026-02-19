@@ -1,6 +1,6 @@
 <?php
-$start = filter_input(INPUT_POST, 'logsince', FILTER_SANITIZE_SPECIAL_CHARS);
-$end = filter_input(INPUT_POST, 'loguntil', FILTER_SANITIZE_SPECIAL_CHARS);
+$start = filter_input(INPUT_POST, 'logsince', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+$end = filter_input(INPUT_POST, 'loguntil', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 if (!$start || !$end) {
     header('Location: ../../../index.php?log=go');
 }

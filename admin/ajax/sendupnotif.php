@@ -18,11 +18,11 @@ require_once dirname(dirname(__FILE__)).'/class/class.setup.php';
 require_once dirname(dirname(__FILE__)).'/class/class.gatekeeper.php';
 require_once dirname(dirname(__FILE__)).'/class/class.logger.php';
 
-$lang = filter_input(INPUT_POST, 'thislang', FILTER_SANITIZE_SPECIAL_CHARS);
+$lang = filter_input(INPUT_POST, 'thislang', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 $senduser = filter_input(INPUT_POST, 'senduser', FILTER_VALIDATE_EMAIL, FILTER_REQUIRE_ARRAY);
-$postpath = filter_input(INPUT_POST, 'path', FILTER_SANITIZE_SPECIAL_CHARS);
-$postfilename = filter_input(INPUT_POST, 'filename', FILTER_SANITIZE_SPECIAL_CHARS, FILTER_REQUIRE_ARRAY);
-$uploader_message = filter_input(INPUT_POST, 'uploader_message', FILTER_SANITIZE_SPECIAL_CHARS);
+$postpath = filter_input(INPUT_POST, 'path', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+$postfilename = filter_input(INPUT_POST, 'filename', FILTER_SANITIZE_FULL_SPECIAL_CHARS, FILTER_REQUIRE_ARRAY);
+$uploader_message = filter_input(INPUT_POST, 'uploader_message', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
 use PHPMailer\PHPMailer\PHPMailer;
 

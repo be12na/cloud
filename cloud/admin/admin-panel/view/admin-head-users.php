@@ -20,11 +20,11 @@ if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] == 'POST') {
     $users = $_USERS;
 
     if ($get_action == "new") {
-        $postnewusername = filter_input(INPUT_POST, "newusername", FILTER_SANITIZE_SPECIAL_CHARS);
+        $postnewusername = filter_input(INPUT_POST, "newusername", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
         $postnewuserpass = isset($_POST['newuserpass']) ? $_POST['newuserpass'] : false;
-        $postnewuserfolder = filter_input(INPUT_POST, "newuserfolder", FILTER_SANITIZE_SPECIAL_CHARS);
-        $newuserrole = filter_input(INPUT_POST, "newrole", FILTER_SANITIZE_SPECIAL_CHARS);
-        $newquota = filter_input(INPUT_POST, "quota", FILTER_SANITIZE_SPECIAL_CHARS);
+        $postnewuserfolder = filter_input(INPUT_POST, "newuserfolder", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        $newuserrole = filter_input(INPUT_POST, "newrole", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        $newquota = filter_input(INPUT_POST, "quota", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
         $newuserfolders = false;
         $disabled = isset($_POST['disabled']);
 
@@ -174,11 +174,11 @@ if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] == 'POST') {
                                     if ($customfield['type'] == 'select' && is_array($_POST[$customkey])) {
                                         $cleanfield = array();
                                         foreach ($_POST[$customkey] as $value) {
-                                            $cleanfield[] = filter_var($value, FILTER_SANITIZE_SPECIAL_CHARS);
+                                            $cleanfield[] = filter_var($value, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
                                         }
                                         $cleanfield = json_encode($cleanfield);
                                     } else {
-                                        $cleanfield = filter_input(INPUT_POST, $customkey, FILTER_SANITIZE_SPECIAL_CHARS);
+                                        $cleanfield = filter_input(INPUT_POST, $customkey, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
                                     }
                                 }
                             }
@@ -207,8 +207,8 @@ if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] == 'POST') {
         $blockup = false;
         $blockupmail = false;
 
-        $postusernameold = filter_input(INPUT_POST, "masterusernameold", FILTER_SANITIZE_SPECIAL_CHARS);
-        $postusername = filter_input(INPUT_POST, "masterusername", FILTER_SANITIZE_SPECIAL_CHARS);
+        $postusernameold = filter_input(INPUT_POST, "masterusernameold", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        $postusername = filter_input(INPUT_POST, "masterusername", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
         $postuserpassnew = isset($_POST['masteruserpassnew']) ? $_POST['masteruserpassnew'] : false;
         $postusermailold = filter_input(INPUT_POST, "masterusermailold", FILTER_VALIDATE_EMAIL);
         $postusermail = filter_input(INPUT_POST, "masterusermail", FILTER_VALIDATE_EMAIL);
@@ -252,6 +252,7 @@ if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] == 'POST') {
                 $admin->updateUsers($users);
                 // header('Location: ?section=users&res='.urlencode($_SESSION['success']));
                 header('Location: ?section=users');
+                exit;
             }
         }
     }
@@ -261,13 +262,13 @@ if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] == 'POST') {
         $blockupmail = false;
         $users = false;
 
-        $postusernameold = filter_input(INPUT_POST, "usernameold", FILTER_SANITIZE_SPECIAL_CHARS);
-        $postusername = filter_input(INPUT_POST, "username", FILTER_SANITIZE_SPECIAL_CHARS);
+        $postusernameold = filter_input(INPUT_POST, "usernameold", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        $postusername = filter_input(INPUT_POST, "username", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
         $postuserpassnew = isset($_POST['userpassnew']) ? $_POST['userpassnew'] : false;
-        $postuserfolder = filter_input(INPUT_POST, "userfolder", FILTER_SANITIZE_SPECIAL_CHARS);
-        $quota = filter_input(INPUT_POST, "quota", FILTER_SANITIZE_SPECIAL_CHARS);
-        $role = filter_input(INPUT_POST, "role", FILTER_SANITIZE_SPECIAL_CHARS);
-        $delme = filter_input(INPUT_POST, "delme", FILTER_SANITIZE_SPECIAL_CHARS);
+        $postuserfolder = filter_input(INPUT_POST, "userfolder", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        $quota = filter_input(INPUT_POST, "quota", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        $role = filter_input(INPUT_POST, "role", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        $delme = filter_input(INPUT_POST, "delme", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
         $disabled = isset($_POST['disabled']);
 
         if ($delme == $postusernameold) {
@@ -285,11 +286,11 @@ if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] == 'POST') {
                             if ($customfield['type'] == 'select' && is_array($_POST[$customkey])) {
                                 $cleanfield = array();
                                 foreach ($_POST[$customkey] as $value) {
-                                    $cleanfield[] = filter_var($value, FILTER_SANITIZE_SPECIAL_CHARS);
+                                    $cleanfield[] = filter_var($value, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
                                 }
                                 $cleanfield = json_encode($cleanfield);
                             } else {
-                                $cleanfield = filter_input(INPUT_POST, $customkey, FILTER_SANITIZE_SPECIAL_CHARS);
+                                $cleanfield = filter_input(INPUT_POST, $customkey, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
                             }
                         }
                     }

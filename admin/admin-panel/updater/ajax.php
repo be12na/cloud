@@ -19,7 +19,7 @@ if (!$gateKeeper->canSuperAdmin('superadmin_can_preferences')) {
 }
 
 require_once dirname(__FILE__).'/class.vfmupdater.php';
-$action = filter_input(INPUT_POST, 'action', FILTER_SANITIZE_SPECIAL_CHARS);
+$action = filter_input(INPUT_POST, 'action', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
 $response = false;
 switch ($action){

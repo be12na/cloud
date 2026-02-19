@@ -21,9 +21,11 @@ require_once dirname(dirname(__FILE__)).'/class/class.actions.php';
 $setUp = new SetUp();
 $gateKeeper = new GateKeeper();
 
-$currentdir = base64_decode((string)filter_input(INPUT_POST, 'currentdir', FILTER_SANITIZE_SPECIAL_CHARS));
-$__root = filter_input(INPUT_POST, '__root', FILTER_SANITIZE_SPECIAL_CHARS);
-$action = filter_input(INPUT_POST, 'action', FILTER_SANITIZE_SPECIAL_CHARS);
+header('Content-Type: application/json');
+
+$currentdir = base64_decode((string)filter_input(INPUT_POST, 'currentdir', FILTER_SANITIZE_FULL_SPECIAL_CHARS));
+$__root = filter_input(INPUT_POST, '__root', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+$action = filter_input(INPUT_POST, 'action', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
 $movedir = $setUp->getConfig('starting_dir');
 

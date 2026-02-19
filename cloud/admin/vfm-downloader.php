@@ -34,17 +34,17 @@ date_default_timezone_set($timezone);
  $script_url = $setUp->getConfig('script_url');
 
 // Sanitasi Input
- $getzip = filter_input(INPUT_GET, 'zip', FILTER_SANITIZE_SPECIAL_CHARS);
- $getfile = filter_input(INPUT_GET, 'q', FILTER_SANITIZE_SPECIAL_CHARS);
- $hash = filter_input(INPUT_GET, 'h', FILTER_SANITIZE_SPECIAL_CHARS);
- $supah = filter_input(INPUT_GET, 'sh', FILTER_SANITIZE_SPECIAL_CHARS);
- $json_file = filter_input(INPUT_GET, 'share', FILTER_SANITIZE_SPECIAL_CHARS);
+ $getzip = filter_input(INPUT_GET, 'zip', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+ $getfile = filter_input(INPUT_GET, 'q', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+ $hash = filter_input(INPUT_GET, 'h', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+ $supah = filter_input(INPUT_GET, 'sh', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+ $json_file = filter_input(INPUT_GET, 'share', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
  $alt = $setUp->getConfig('salt');
  $altone = $setUp->getConfig('session_name');
 
 // Deteksi Android
- $android = (stripos(strtolower($_SERVER['HTTP_USER_AGENT']), 'android') !== false);
+ $android = (stripos(strtolower($_SERVER['HTTP_USER_AGENT'] ?? ''), 'android') !== false);
 
 /**
  * 1. DOWNLOAD SINGLE FILE (Shared Link / Non-logged)
@@ -124,7 +124,7 @@ if ($getfile && $hash
     && $downloader->checkFile($getfile) == true
     && md5($alt . $getfile . $altone . $alt) === $hash
 ) {
-    $playmp3 = filter_input(INPUT_GET, 'audio', FILTER_SANITIZE_SPECIAL_CHARS);
+    $playmp3 = filter_input(INPUT_GET, 'audio', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
     $headers = $downloader->getHeaders($getfile, $playmp3);
 
     if (($gateKeeper->isUserLoggedIn() && $downloader->subDir($headers['dirname']) == true) 
@@ -168,7 +168,7 @@ if ($getfile && $hash
  * 3. DOWNLOAD ZIP
  */
 if ($getzip) {
-    $supahzip = filter_input(INPUT_GET, 'n', FILTER_SANITIZE_SPECIAL_CHARS);
+    $supahzip = filter_input(INPUT_GET, 'n', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
     
     // SECURITY FIX: Gunakan basename untuk mencegah Path Traversal
     $zip_json = __DIR__ . '/tmp/' . basename($getzip) . '.json';
@@ -220,7 +220,7 @@ if ($getzip) {
             $zip = new \PHPZip\Zip\Stream\ZipStream($archivename . '.zip');
 
             foreach ($files as $file) {
-                $zip->addLargeFile($cleanpath . $file, $archivename . '/' . basename($file), filectime($cleanpath . $file));
+                $zip->addLargeFile($cleanpath . $file, $archivename . '/' . basename($file), filemtime($cleanpath . $file));
             }
             $zip->finalize();
             $logger->logDownload($files);

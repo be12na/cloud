@@ -60,9 +60,9 @@ if (!class_exists('GateKeeper', false)) {
             }
 
             // $postusername = isset($_POST['user_name']) ? str_replace(['"',"'"], "", $_POST['user_name']) : false;
-            $postusername = filter_input(INPUT_POST, "user_name", FILTER_SANITIZE_SPECIAL_CHARS);
+            $postusername = filter_input(INPUT_POST, "user_name", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
             $postuserpass = isset($_POST['user_pass']) ? $_POST['user_pass'] : false;
-            $rememberme = filter_input(INPUT_POST, 'vfm_remember', FILTER_SANITIZE_SPECIAL_CHARS);
+            $rememberme = filter_input(INPUT_POST, 'vfm_remember', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
             if ($postusername && $postuserpass) {
                 if (!Utils::verifyCsrfToken()) {
@@ -178,16 +178,6 @@ if (!class_exists('GateKeeper', false)) {
             $passo = $salt.urlencode($userPass);
             $users = $this->getUsers();
 
-            // foreach ($users as $user) {
-            //     if (isset($user['sensitive']) && $user['sensitive'] === $userName) {
-            //         if (crypt($passo, $user['pass']) == $user['pass']) {
-            //             $_SESSION['vfm_user_name_new'] = $user['name'];
-            //             Utils::setWarning('<span>'.$setUp->getString('your_new_username_is').' <strong>'.$user['name'].'</strong></span>');
-            //             return true;
-            //         }
-            //         break;
-            //     }
-            // }
             if ($users) {
                 foreach ($users as $user) {
                     if (strtolower($user['name']) === strtolower($userName)) {
@@ -536,8 +526,8 @@ if (!class_exists('GateKeeper', false)) {
                     ['expires' => $expires, 'httponly' => true, 'samesite' => 'strict', 'secure' => isset($_SERVER['HTTPS'])]
                 );
             } else {
-                setcookie('rm', $rmsha, $expires);
-                setcookie('vfm_user_name', $postusername, $expires);
+                setcookie('rm', $rmsha, $expires, '/', '', isset($_SERVER['HTTPS']), true);
+                setcookie('vfm_user_name', $postusername, $expires, '/', '', isset($_SERVER['HTTPS']), true);
             }
 
             if (array_key_exists($postusername, $_REMEMBER)
@@ -659,7 +649,8 @@ if (!class_exists('GateKeeper', false)) {
                     $usedspace = $this->getUserSpace();
 
                     if ($usedspace !== false) {
-                        $userspace = $this->getUserInfo('quota')*1024*1024;
+                        $quota = $this->getUserInfo('quota');
+                        $userspace = ($quota !== null && $quota !== false ? (int)$quota : 0) * 1024 * 1024;
                         $_SESSION['vfm_user_used'] = $usedspace;
                         $_SESSION['vfm_user_space'] = $userspace;
                     } else {

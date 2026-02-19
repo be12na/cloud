@@ -35,22 +35,24 @@ if (!$setfrom || !strlen($setfrom)) {
 }
 
 $filterType = array(
-    'string' => FILTER_SANITIZE_SPECIAL_CHARS,
+    'string' => FILTER_SANITIZE_FULL_SPECIAL_CHARS,
     'integer' => FILTER_VALIDATE_INT,
+    'array' => FILTER_DEFAULT,
 );
 
 $post = array();
 
 // filter inputs
 foreach ($_POST as $key => $value) {
-    $filter = $filterType[gettype($value)];
+    $type = gettype($value);
+    $filter = isset($filterType[$type]) ? $filterType[$type] : FILTER_SANITIZE_FULL_SPECIAL_CHARS;
     $value = filter_var($value, $filter);
     $post[$key] = $value;
 }
 
-$post = array_filter($post, 'strlen');
+$post = array_filter($post, function($v) { return strlen((string)$v) > 0; });
 
-$postname = filter_input(INPUT_POST, "user_name", FILTER_SANITIZE_SPECIAL_CHARS);
+$postname = filter_input(INPUT_POST, "user_name", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 $postpass = isset($_POST['user_pass']) ? $_POST['user_pass'] : false;
 $postpassconfirm = isset($_POST['user_pass_confirm']) ? $_POST['user_pass_confirm'] : false;
 $postmail = filter_input(INPUT_POST, 'user_email', FILTER_VALIDATE_EMAIL);
@@ -111,12 +113,13 @@ if ($prereguser) {
     }
 }
 
+$salt = $setUp->getConfig('salt');
+$appurl = $setUp->getConfig('script_url');
+
 if (!$prereguser) {
     $newuser = array();
     $newuser['name'] = $postname;
-    $salt = $setUp->getConfig('salt');
-    $appurl =  $setUp->getConfig('script_url');
-    $newuser['pass'] = crypt($salt.urlencode($postpass), Utils::randomString());
+    $newuser['pass'] = Utils::hashPassword($salt, $postpass);
     $newuser['email'] = $postmail;
 
     // remove standard fields
@@ -143,36 +146,8 @@ require_once dirname(dirname(__FILE__)).'/assets/mail/vendor/autoload.php';
 
 $mail = new PHPMailer();
 
-$mail->CharSet = 'UTF-8';
-$mail->setLanguage($lang);
+Utils::configureSMTP($mail, $setUp, $lang);
 
-if ($setUp->getConfig('smtp_enable') == true) {
-    $mail->isSMTP();
-    $mail->SMTPDebug = ($setUp->getConfig('debug_smtp') ? 2 : 0);
-    $mail->Debugoutput = 'html';
-    $smtp_auth = $setUp->getConfig('smtp_auth');
-    $mail->Host = $setUp->getConfig('smtp_server');
-    $mail->Port = (int)$setUp->getConfig('port');
-    if (version_compare(PHP_VERSION, '5.6.0', '>=')) {
-        $mail->SMTPOptions = array(
-            'ssl' => array(
-                'verify_peer' => false,
-                'verify_peer_name' => false,
-                'allow_self_signed' => true,
-            )
-        );
-    }
-    if ($setUp->getConfig('secure_conn') !== "none") {
-        $mail->SMTPSecure = $setUp->getConfig('secure_conn');
-    }
-    
-    $mail->SMTPAuth = $smtp_auth;
-
-    if ($smtp_auth == true) {
-        $mail->Username = $setUp->getConfig('email_login');
-        $mail->Password = $setUp->getConfig('email_pass');
-    }
-}
 $mail->setFrom($setfrom, $setUp->getConfig('appname'));
 $mail->addAddress($postmail, '<'.$postmail.'>');
 
@@ -180,7 +155,7 @@ $mail->Subject = $setUp->getConfig('appname').": ".$setUp->getString('activate_a
 
 $altmessage = $setUp->getString('follow_this_link_to_activate')."/n".$activationlink;
 
-$email_logo = $setUp->getConfig('email_logo', false) ? '../_content/uploads/'.$setUp->getConfig('email_logo') : '../images/px.png';;
+$email_logo = $setUp->getConfig('email_logo', false) ? '../_content/uploads/'.$setUp->getConfig('email_logo') : '../images/px.png';
 $mail->AddEmbeddedImage($email_logo, 'logoimg');
 
 // Retrieve the email template required

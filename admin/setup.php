@@ -121,6 +121,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['vfm_install'])) {
         if ($smtp_enable && empty($smtp_server)) {
             $errors[] = 'SMTP server wajib diisi jika SMTP diaktifkan.';
         }
+        if (!empty($smtp_port) && (!ctype_digit($smtp_port) || (int)$smtp_port < 1 || (int)$smtp_port > 65535)) {
+            $errors[] = 'Port SMTP harus angka antara 1-65535.';
+        }
 
         // --- Save if no errors ---
         if (empty($errors)) {
@@ -144,7 +147,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['vfm_install'])) {
             $_CONFIG['email_pass'] = $smtp_pass;
             $_CONFIG['smtp_enable'] = $smtp_enable;
             $_CONFIG['smtp_server'] = $smtp_server;
-            $_CONFIG['port'] = $smtp_port;
+            $_CONFIG['port'] = (int)$smtp_port;
             $_CONFIG['smtp_auth'] = $smtp_enable;
             $_CONFIG['secure_conn'] = $smtp_secure;
             $_CONFIG['debug_mode'] = false;
@@ -686,7 +689,7 @@ $timezones = DateTimeZone::listIdentifiers(DateTimeZone::ALL);
                         <label class="form-label" for="smtp_pass">SMTP Password</label>
                         <div class="input-icon-group">
                             <input type="password" class="form-control pe-5" id="smtp_pass" name="smtp_pass" 
-                                   value="<?php echo htmlspecialchars($_POST['smtp_pass'] ?? ''); ?>" 
+                                   value="" 
                                    placeholder="App Password">
                             <span class="password-toggle" onclick="togglePass('smtp_pass')">
                                 <i class="bi bi-eye"></i>

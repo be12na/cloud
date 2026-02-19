@@ -29,9 +29,9 @@ if (!$gateKeeper->isUserLoggedIn()) {
     exit('Unauthorized');
 }
 
-$attachments = filter_input(INPUT_POST, "atts", FILTER_SANITIZE_SPECIAL_CHARS);
-$time = filter_input(INPUT_POST, "time", FILTER_SANITIZE_SPECIAL_CHARS);
-$hash = filter_input(INPUT_POST, "hash", FILTER_SANITIZE_SPECIAL_CHARS);
+$attachments = filter_input(INPUT_POST, "atts", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+$time = filter_input(INPUT_POST, "time", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+$hash = filter_input(INPUT_POST, "hash", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 $pass = isset($_POST['pass']) ? $_POST['pass'] : false;
 
 $hpass = false;

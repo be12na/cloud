@@ -23,7 +23,7 @@ if (!class_exists('Location', false)) {
         public function __construct($getdir = false)
         {
             $setUp = SetUp::getInstance();
-            $getdir = $getdir ? $getdir : filter_input(INPUT_GET, 'dir', FILTER_SANITIZE_SPECIAL_CHARS);
+            $getdir = $getdir ? $getdir : filter_input(INPUT_GET, 'dir', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
             // if (!$getdir || !is_dir($getdir)) {
             if (!$getdir) {
                 $this->path = $this->splitPath($setUp->getConfig('starting_dir'));

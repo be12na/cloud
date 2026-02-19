@@ -4,6 +4,8 @@
  *
  *
  */
+require_once dirname(__FILE__).'/class.utils.php';
+
 if (!class_exists('SetUp', false)) {
     /**
      * SetUp Class
@@ -15,6 +17,17 @@ if (!class_exists('SetUp', false)) {
         public $lang;
         private $_CONFIG = false;
         private $_TRANSLATIONS = false;
+        private static $instance = null;
+
+        /**
+         * Get singleton instance
+         *
+         * @return SetUp
+         */
+        public static function getInstance()
+        {
+            return self::$instance;
+        }
 
         /**
          * Set session and language
@@ -23,6 +36,7 @@ if (!class_exists('SetUp', false)) {
          */
         public function __construct()
         {
+            self::$instance = $this;
             $this->_CONFIG = $this->loadConfig();
             $relative = dirname(dirname(__FILE__)).'/';
             $timeconfig = $this->getConfig('default_timezone');
@@ -176,16 +190,26 @@ if (!class_exists('SetUp', false)) {
         }
 
         /**
-         * Load $_CONFIG config from config.php
+         * Load $_CONFIG config from config.php or config.json
          *
          * @return users array
          */
         public function loadConfig()
         {
+            $basedir = dirname(dirname(__FILE__));
+            $jsonPath = $basedir.'/config.json';
+            $phpPath = $basedir.'/config.php';
+            // Try JSON first
+            if (file_exists($jsonPath)) {
+                return Utils::loadJson($jsonPath, false);
+            }
+            // Fallback to legacy PHP, auto-migrate
             $_CONFIG = false;
-            $filepath = dirname(dirname(__FILE__)).'/config.php';
-            if (file_exists($filepath)) {
-                include $filepath;
+            if (file_exists($phpPath)) {
+                include $phpPath;
+                if (is_array($_CONFIG)) {
+                    Utils::saveJson($jsonPath, $_CONFIG);
+                }
             }
             return $_CONFIG;
         }
@@ -199,10 +223,20 @@ if (!class_exists('SetUp', false)) {
          */
         public function loadTranslations($lang)
         {
+            $basedir = dirname(dirname(__FILE__));
+            $jsonPath = $basedir.'/translations/'.$lang.'.json';
+            $phpPath = $basedir.'/translations/'.$lang.'.php';
+            // Try JSON first
+            if (file_exists($jsonPath)) {
+                return Utils::loadJson($jsonPath, false);
+            }
+            // Fallback to legacy PHP, auto-migrate
             $_TRANSLATIONS = false;
-            $filepath = dirname(dirname(__FILE__)).'/translations/'.$lang.'.php';
-            if (file_exists($filepath)) {
-                include $filepath;
+            if (file_exists($phpPath)) {
+                include $phpPath;
+                if (is_array($_TRANSLATIONS)) {
+                    Utils::saveJson($jsonPath, $_TRANSLATIONS);
+                }
             }
             return $_TRANSLATIONS;
         }
@@ -217,10 +251,8 @@ if (!class_exists('SetUp', false)) {
          */
         public function getConfig($name, $default = false)
         {
-            if ($this->_CONFIG && isset($this->_CONFIG[$name])) {
-                if ($this->_CONFIG[$name] !== false) {
-                    return $this->_CONFIG[$name];
-                }
+            if ($this->_CONFIG && array_key_exists($name, $this->_CONFIG)) {
+                return $this->_CONFIG[$name];
             }
             return $default;
         }
@@ -232,7 +264,7 @@ if (!class_exists('SetUp', false)) {
          */
         public function getDescription()
         {
-            global $setUp;
+            $setUp = SetUp::getInstance();
             $fulldesc = html_entity_decode($setUp->getConfig('description'), ENT_QUOTES, 'UTF-8');
             $cleandesc = strip_tags($fulldesc, '<img>');
 
@@ -249,7 +281,7 @@ if (!class_exists('SetUp', false)) {
          */
         public function printAlert()
         {
-            global $setUp;
+            $setUp = SetUp::getInstance();
             $_ERROR = isset($_SESSION['error']) ? $_SESSION['error'] : false;
             $_SUCCESS = isset($_SESSION['success']) ? $_SESSION['success'] : false;
             $_WARNING = isset($_SESSION['warning']) ? $_SESSION['warning'] : false;
@@ -313,7 +345,7 @@ if (!class_exists('SetUp', false)) {
          */
         public static function formatModTime($time)
         {
-            global $setUp;
+            $setUp = SetUp::getInstance();
             $timeformat = 'd.m.y H:i:s';
             if ($setUp->getConfig('time_format') != null
                 && strlen($setUp->getConfig('time_format')) > 0
@@ -411,7 +443,7 @@ if (!class_exists('SetUp', false)) {
          */
         public function sanitizePath($path)
         {
-            global $setUp;
+            $setUp = SetUp::getInstance();
             $prefix = ltrim($setUp->getConfig('starting_dir'), './');
             $trimpath = ltrim($path, './');
 

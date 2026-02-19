@@ -22,10 +22,10 @@ if (!class_exists('Resetter', false)) {
             $updater = new Updater();
             $resetter = $this;
 
-            $resetpwd = filter_input(INPUT_POST, 'reset_pwd', FILTER_SANITIZE_SPECIAL_CHARS);
-            $resetconf = filter_input(INPUT_POST, 'reset_conf', FILTER_SANITIZE_SPECIAL_CHARS);
-            $userh = filter_input(INPUT_POST, 'userh', FILTER_SANITIZE_SPECIAL_CHARS);
-            $getrp = filter_input(INPUT_POST, 'getrp', FILTER_SANITIZE_SPECIAL_CHARS);
+            $resetpwd = filter_input(INPUT_POST, 'reset_pwd', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+            $resetconf = filter_input(INPUT_POST, 'reset_conf', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+            $userh = filter_input(INPUT_POST, 'userh', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+            $getrp = filter_input(INPUT_POST, 'getrp', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
             if ($resetpwd && $resetconf && $userh && $getrp) {
                 if ($resetpwd == $resetconf && $resetter->checkTok($getrp, $userh) === true) {

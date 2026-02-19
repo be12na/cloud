@@ -195,7 +195,7 @@ if ($gateKeeper->isUserLoggedIn() && $setUp->getConfig("show_usermenu") == true)
               </li>
             </ul>
 
-            <form role="form" method="post" id="usrForm" autocomplete="off" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING']);?>">
+            <form role="form" method="post" id="usrForm" autocomplete="off" action="<?php echo htmlspecialchars($_SERVER['SCRIPT_NAME'].'?'.$_SERVER['QUERY_STRING'], ENT_QUOTES, 'UTF-8');?>">
             <div class="tab-content">
               <div role="tabpanel" class="tab-pane fade text-center" id="upava" role="tabpanel">
                 <div class="avatar-response"></div>
@@ -265,11 +265,11 @@ if ($gateKeeper->isUserLoggedIn() && $setUp->getConfig("show_usermenu") == true)
             $optionselecta = $gateKeeper->getUserInfo($customkey);
             if (isset($customfield['type'])) { ?>
                 <div class="form-group mb-3">
-                    <label class="form-label"><?php echo $customfield['name']; ?></label>
+                    <label class="form-label"><?php echo htmlspecialchars($customfield['name'], ENT_QUOTES, 'UTF-8'); ?></label>
                 <?php
                 if ($customfield['type'] === 'textarea') { ?>
-                    <textarea name="<?php echo $customkey; ?>" class="form-control getuser getuser-<?php echo $customkey; ?>" rows="2">
-                        <?php echo $optionselecta; ?>        
+                    <textarea name="<?php echo htmlspecialchars($customkey, ENT_QUOTES, 'UTF-8'); ?>" class="form-control getuser getuser-<?php echo htmlspecialchars($customkey, ENT_QUOTES, 'UTF-8'); ?>" rows="2">
+                        <?php echo htmlspecialchars($optionselecta, ENT_QUOTES, 'UTF-8'); ?>        
                     </textarea>
                     <?php
                 }
@@ -278,13 +278,13 @@ if ($gateKeeper->isUserLoggedIn() && $setUp->getConfig("show_usermenu") == true)
                     if (isset($customfield['multiple']) && $customfield['multiple'] == true) {
                          $multiselect = ($customfield['multiple'] == true ? 'multiple="multiple"' : '');
                     } ?>
-                    <select name="<?php echo $customkey; ?>" class="form-select" <?php echo $multiselect; ?>>
+                    <select name="<?php echo htmlspecialchars($customkey, ENT_QUOTES, 'UTF-8'); ?>" class="form-select" <?php echo $multiselect; ?>>
                     <?php
                     foreach ($customfield['options'] as $optionval => $optiontitle) {
                         $selected = ($optionselecta == $optionval) ? 'selected' : '';
                         ?>
-                        <option value="<?php echo $optionval; ?>" <?php echo $selected ;?>>
-                            <?php echo $optiontitle; ?>
+                        <option value="<?php echo htmlspecialchars($optionval, ENT_QUOTES, 'UTF-8'); ?>" <?php echo $selected ;?>>
+                            <?php echo htmlspecialchars($optiontitle, ENT_QUOTES, 'UTF-8'); ?>
                         </option>
                         <?php
                     } ?>
@@ -292,7 +292,7 @@ if ($gateKeeper->isUserLoggedIn() && $setUp->getConfig("show_usermenu") == true)
                     <?php
                 }
                 if ($customfield['type'] === 'text' || $customfield['type'] === 'email') { ?>
-                    <input type="<?php echo $customfield['type']; ?>" name="<?php echo $customkey; ?>" class="form-control" value="<?php echo $optionselecta; ?>">
+                    <input type="<?php echo htmlspecialchars($customfield['type'], ENT_QUOTES, 'UTF-8'); ?>" name="<?php echo htmlspecialchars($customkey, ENT_QUOTES, 'UTF-8'); ?>" class="form-control" value="<?php echo htmlspecialchars($optionselecta, ENT_QUOTES, 'UTF-8'); ?>">
                     <?php
                 } ?>
                 </div>

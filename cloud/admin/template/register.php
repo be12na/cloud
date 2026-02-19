@@ -30,6 +30,7 @@ if (!$gateKeeper->isUserLoggedIn()) {
                     </div>
                     <div class="card-body">
                         <form class="needs-validation" id="regform" action="<?php print $location->makeLink(false, null, ""); ?>" novalidate>
+                            <?php echo Utils::csrfField(); ?>
                             <input type="hidden" id="trans_fill_all" value="<?php echo $setUp->getString("fill_all_fields"); ?>">
                             <input type="hidden" id="trans_pwd_match" value="<?php echo $setUp->getString("passwords_dont_match"); ?>">
                             <input type="hidden" id="trans_accept_terms" value="<?php echo $setUp->getString("accept_terms_and_conditions"); ?>">

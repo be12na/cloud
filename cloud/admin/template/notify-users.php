@@ -42,7 +42,7 @@ if ($location->editAllowed() && $gateKeeper->isAllowed('upload_enable')) {
                     $notificable['name'] = $user['name'];
 
                     // show email only to SuperAdmins
-                    $notificable['showmail'] = ($gateKeeper->isSuperAdmin() ? "<small>(".$notificable['email'].")</small>" : "");
+                    $notificable['showmail'] = ($gateKeeper->isSuperAdmin() ? "<small>(".htmlspecialchars($notificable['email'], ENT_QUOTES, 'UTF-8').")</small>" : "");
                     
                     array_push($notificables, $notificable);
                     $usercount++;

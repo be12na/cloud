@@ -16,7 +16,7 @@
   'browser_lang' => false,
   'clipboard' => true,
   'copy_enable' => true,
-  'credits' => 'CLOUD',
+  'credits' => 'CLOUD2',
   'credits_link' => 'https://berna.biz.id',
   'debug_mode' => false, // Pastikan FALSE di production
   'debug_smtp' => false,

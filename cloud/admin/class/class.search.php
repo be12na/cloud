@@ -22,7 +22,7 @@ if (!class_exists('Search', false)) {
          */
         public function deepSearch($path, $search)
         {
-            global $setUp;
+            $setUp = SetUp::getInstance();
             $result = array(
                 'dirs' => array(),
                 'files' => array(),
@@ -83,7 +83,9 @@ if (!class_exists('Search', false)) {
          */
         public function highlightSearch($content, $search)
         {
-            $keys = implode('|', explode(' ', $search));
+            $words = explode(' ', $search);
+            $escaped = array_map(function($w) { return preg_quote($w, '/'); }, $words);
+            $keys = implode('|', $escaped);
             $content = preg_replace('/(' . $keys .')/iu', '<span class="search-highlight">\0</span>', $content);
 
             return $content;
@@ -104,7 +106,7 @@ class VfmFilterIterator extends RecursiveFilterIterator
      */
     public function accept():bool
     {
-        global $setUp;
+        $setUp = SetUp::getInstance();
         $startingdir = $setUp->getConfig('starting_dir');
         $hidefiles = strlen($startingdir) < 3 ? true : false;
         if ('.' == substr($this->current()->getFilename(), 0, 1)) {

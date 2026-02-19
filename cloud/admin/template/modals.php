@@ -47,6 +47,7 @@ if ($gateKeeper->isAccessAllowed()) {
     );
 
     $VFMmodals['share'] = $sharelinkatts;
+    $VFMmodals['csrf_token'] = Utils::generateCsrfToken();
 
     /**
      * Send files window
@@ -182,6 +183,7 @@ if ($gateKeeper->isAccessAllowed()) {
                     </div>
                     <div class="modal-body">
                         <form role="form" method="post" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING']);?>">
+                            <?php echo Utils::csrfField(); ?>
                             <input readonly name="thisdir" type="hidden" class="form-control" id="dir">
                             <input readonly name="thisext" type="hidden" class="form-control" id="ext">
                             <input readonly name="oldname" type="hidden" class="form-control" id="oldname">

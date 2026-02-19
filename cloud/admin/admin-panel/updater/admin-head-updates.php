@@ -7,8 +7,7 @@ if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] == 'POST') {
     */
     $_CONFIG['license_key'] = filter_input(INPUT_POST, "license_key", FILTER_SANITIZE_URL);
     // Save settings.
-    $con = '$_CONFIG = ';
-    if (false === (file_put_contents('config.php', "<?php\n\n $con".var_export($_CONFIG, true).";\n"))) {
+    if (!Utils::saveJson('config.json', $_CONFIG)) {
         Utils::setError('Error saving config file');
     } else {
         Utils::setSuccess($setUp->getString('settings_updated'));

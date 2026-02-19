@@ -27,10 +27,10 @@ if (!class_exists('Actions', false)) {
 
             $gateKeeper = GateKeeper::getInstance();
 
-            $postnewdir = filter_input(INPUT_POST, 'userdir', FILTER_SANITIZE_SPECIAL_CHARS);
-            $renamedir = filter_input(INPUT_POST, 'newname', FILTER_SANITIZE_SPECIAL_CHARS);
-            $postoldname = filter_input(INPUT_POST, 'oldname', FILTER_SANITIZE_SPECIAL_CHARS);
-            $getdel = filter_input(INPUT_GET, 'del', FILTER_SANITIZE_SPECIAL_CHARS);
+            $postnewdir = filter_input(INPUT_POST, 'userdir', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+            $renamedir = filter_input(INPUT_POST, 'newname', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+            $postoldname = filter_input(INPUT_POST, 'oldname', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+            $getdel = filter_input(INPUT_GET, 'del', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
             // delete files or folders
             if ($getdel && $gateKeeper->isAllowed('delete_enable')) {
@@ -75,8 +75,8 @@ if (!class_exists('Actions', false)) {
 
             $startdir = $setUp->getConfig('starting_dir');
 
-            $cash = filter_input(INPUT_GET, 'h', FILTER_SANITIZE_SPECIAL_CHARS);
-            $del = filter_input(INPUT_GET, 'del', FILTER_SANITIZE_SPECIAL_CHARS);
+            $cash = filter_input(INPUT_GET, 'h', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+            $del = filter_input(INPUT_GET, 'del', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
             $del = str_replace(' ', '+', $del);
 
@@ -231,8 +231,8 @@ if (!class_exists('Actions', false)) {
                     return;
                 }
 
-                $postthisext = basename(filter_input(INPUT_POST, 'thisext', FILTER_SANITIZE_SPECIAL_CHARS) ?? '');
-                $postthisdir = filter_input(INPUT_POST, 'thisdir', FILTER_SANITIZE_SPECIAL_CHARS) ?? '';
+                $postthisext = basename(filter_input(INPUT_POST, 'thisext', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? '');
+                $postthisdir = filter_input(INPUT_POST, 'thisdir', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? '';
 
                 if ($postoldname && $postnewname) {
                     if ($postthisext) {

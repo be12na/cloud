@@ -18,7 +18,7 @@ require_once dirname(dirname(__FILE__)).'/class/class.uploader.php';
 
 $uploader = new Uploader();
 $setUp = new SetUp();
-$getloc = filter_input(INPUT_GET, 'loc', FILTER_SANITIZE_SPECIAL_CHARS);
+$getloc = filter_input(INPUT_GET, 'loc', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
 $starttrim = ltrim((string)$setUp->getConfig('starting_dir'), './');
 $getloc = $getloc ? ltrim(urldecode(base64_decode($getloc)), './') : false;
@@ -70,7 +70,7 @@ if ($gateKeeper->isAccessAllowed() && ($gateKeeper->isAllowed('upload_enable')) 
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_FILES)) {
         @set_time_limit(0);
 
-        $resumableIdentifier = filter_input(INPUT_POST, 'resumableIdentifier', FILTER_SANITIZE_SPECIAL_CHARS);
+        $resumableIdentifier = filter_input(INPUT_POST, 'resumableIdentifier', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
         $resumableChunkNumber = filter_input(INPUT_POST, 'resumableChunkNumber', FILTER_VALIDATE_INT);
         $resumableTotalSize = filter_input(INPUT_POST, 'resumableTotalSize', FILTER_VALIDATE_INT);
         $resumableTotalChunks = filter_input(INPUT_POST, 'resumableTotalChunks', FILTER_VALIDATE_INT);

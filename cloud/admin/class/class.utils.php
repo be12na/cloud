@@ -13,6 +13,47 @@ if (!class_exists('Utils', false)) {
     class Utils
     {
         /**
+         * Generate a CSRF token and store in session
+         *
+         * @return string CSRF token
+         */
+        public static function generateCsrfToken()
+        {
+            if (empty($_SESSION['csrf_token'])) {
+                $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+            }
+            return $_SESSION['csrf_token'];
+        }
+
+        /**
+         * Validate CSRF token from POST request
+         *
+         * @param string $token token to validate (if null, reads from POST)
+         *
+         * @return bool
+         */
+        public static function verifyCsrfToken($token = null)
+        {
+            if ($token === null) {
+                $token = filter_input(INPUT_POST, 'csrf_token', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+            }
+            if (empty($token) || empty($_SESSION['csrf_token'])) {
+                return false;
+            }
+            return hash_equals($_SESSION['csrf_token'], $token);
+        }
+
+        /**
+         * Output a hidden CSRF token input field for forms
+         *
+         * @return string HTML hidden input
+         */
+        public static function csrfField()
+        {
+            return '<input type="hidden" name="csrf_token" value="' . htmlspecialchars(self::generateCsrfToken(), ENT_QUOTES, 'UTF-8') . '">';
+        }
+
+        /**
          * Generate random string
          *
          * @param string $length string length
@@ -25,9 +66,49 @@ if (!class_exists('Utils', false)) {
             $charactersLength = strlen($characters);
             $randomString = '';
             for ($i = 0; $i < $length; $i++) {
-                $randomString .= $characters[rand(0, $charactersLength - 1)];
+                $randomString .= $characters[random_int(0, $charactersLength - 1)];
             }
             return '$1$'.$randomString;
+        }
+
+        /**
+         * Hash password using modern password_hash (bcrypt)
+         *
+         * @param string $salt   application salt
+         * @param string $passwd raw password
+         *
+         * @return string hashed password
+         */
+        public static function hashPassword($salt, $passwd)
+        {
+            return password_hash($salt . urlencode($passwd), PASSWORD_BCRYPT);
+        }
+
+        /**
+         * Verify a password against a stored hash.
+         * Supports both modern password_hash and legacy crypt($1$) hashes.
+         *
+         * @param string $salt       application salt
+         * @param string $passwd     raw password to verify
+         * @param string $storedHash stored hash to verify against
+         *
+         * @return bool
+         */
+        public static function verifyPassword($salt, $passwd, $storedHash)
+        {
+            $passo = $salt . urlencode($passwd);
+
+            // Modern bcrypt hash (password_hash output starts with $2y$)
+            if (strpos($storedHash, '$2y$') === 0 || strpos($storedHash, '$2a$') === 0) {
+                return password_verify($passo, $storedHash);
+            }
+
+            // Legacy crypt() hash (backward compatibility)
+            if (crypt($passo, $storedHash) === $storedHash) {
+                return true;
+            }
+
+            return false;
         }
 
         /**
@@ -39,13 +120,13 @@ if (!class_exists('Utils', false)) {
          */
         public static function checkCaptcha($feat = 'show_captcha')
         {
-            global $setUp;
+            $setUp = SetUp::getInstance();
 
             if ($setUp->getConfig($feat) !== true) {
                 return true;
             }
-            $gcaptcha = filter_input(INPUT_POST, 'g-recaptcha-response', FILTER_SANITIZE_SPECIAL_CHARS);
-            $postcaptcha = filter_input(INPUT_POST, 'captcha', FILTER_SANITIZE_SPECIAL_CHARS);
+            $gcaptcha = filter_input(INPUT_POST, 'g-recaptcha-response', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+            $postcaptcha = filter_input(INPUT_POST, 'captcha', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
             if ($postcaptcha) {
                 $postcaptcha = strtolower($postcaptcha);
@@ -56,11 +137,24 @@ if (!class_exists('Utils', false)) {
                 }
             }
             if ($gcaptcha && $setUp->getConfig('recaptcha_secret')) {
+                // Use POST to avoid leaking secret key in URL/logs
+                $postdata = http_build_query([
+                    'secret' => $setUp->getConfig('recaptcha_secret'),
+                    'response' => $gcaptcha
+                ]);
+                $opts = [
+                    'http' => [
+                        'method' => 'POST',
+                        'header' => 'Content-Type: application/x-www-form-urlencoded',
+                        'content' => $postdata
+                    ]
+                ];
+                $context = stream_context_create($opts);
                 $response = json_decode(
-                    file_get_contents('https://www.google.com/recaptcha/api/siteverify?secret='.$setUp->getConfig('recaptcha_secret').'&response='.$gcaptcha), 
+                    file_get_contents('https://www.google.com/recaptcha/api/siteverify', false, $context),
                     true
                 );
-                return $response['success'];
+                return isset($response['success']) ? $response['success'] : false;
             }
             return false;
         }
@@ -107,6 +201,9 @@ if (!class_exists('Utils', false)) {
         public static function getFileSize($path)
         {
             $size = filesize($path);
+            if ($size === false) {
+                return false;
+            }
 
             if (!($file = fopen($path, 'rb'))) {
                 return false;
@@ -322,7 +419,8 @@ if (!class_exists('Utils', false)) {
         }
 
         /**
-         * Check Magic quotes
+         * Check Magic quotes (DEPRECATED - magic_quotes removed in PHP 5.4)
+         * Kept for backward compatibility but no longer applies stripslashes
          *
          * @param string $name string to check
          *
@@ -330,8 +428,89 @@ if (!class_exists('Utils', false)) {
          */
         public static function checkMagicQuotes($name)
         {
-            $name = stripslashes($name);
             return $name;
+        }
+
+        /**
+         * Save data to a JSON file safely with LOCK_EX
+         *
+         * @param string $filepath path to json file
+         * @param mixed  $data     data to encode and save
+         *
+         * @return bool success
+         */
+        public static function saveJson($filepath, $data)
+        {
+            $json = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+            if ($json === false) {
+                return false;
+            }
+            return file_put_contents($filepath, $json, LOCK_EX) !== false;
+        }
+
+        /**
+         * Load data from a JSON file
+         *
+         * @param string $filepath path to json file
+         * @param mixed  $default  default value if file not found
+         *
+         * @return mixed decoded data, or $default
+         */
+        public static function loadJson($filepath, $default = false)
+        {
+            if (!file_exists($filepath)) {
+                return $default;
+            }
+            $content = file_get_contents($filepath);
+            if ($content === false) {
+                return $default;
+            }
+            $data = json_decode($content, true);
+            return ($data !== null) ? $data : $default;
+        }
+
+        /**
+         * Configure PHPMailer SMTP settings from SetUp config
+         *
+         * @param PHPMailer\PHPMailer\PHPMailer $mail  PHPMailer instance
+         * @param SetUp                        $setUp SetUp instance
+         * @param string                       $lang  Language code
+         *
+         * @return void
+         */
+        public static function configureSMTP($mail, $setUp, $lang = 'en')
+        {
+            $mail->CharSet = 'UTF-8';
+            $mail->setLanguage($lang);
+
+            if ($setUp->getConfig('smtp_enable') == true) {
+                $mail->isSMTP();
+                $mail->SMTPDebug = ($setUp->getConfig('debug_smtp') ? 2 : 0);
+                $mail->Debugoutput = 'html';
+
+                $mail->Host = $setUp->getConfig('smtp_server');
+                $mail->Port = (int)$setUp->getConfig('port');
+
+                $smtp_auth = $setUp->getConfig('smtp_auth');
+                $mail->SMTPAuth = $smtp_auth;
+
+                if ($smtp_auth == true) {
+                    $mail->Username = $setUp->getConfig('email_login');
+                    $mail->Password = $setUp->getConfig('email_pass');
+                }
+
+                $mail->SMTPOptions = array(
+                    'ssl' => array(
+                        'verify_peer' => true,
+                        'verify_peer_name' => true,
+                        'allow_self_signed' => false,
+                    )
+                );
+
+                if ($setUp->getConfig('secure_conn') !== 'none') {
+                    $mail->SMTPSecure = $setUp->getConfig('secure_conn');
+                }
+            }
         }
 
         /**
@@ -341,7 +520,7 @@ if (!class_exists('Utils', false)) {
          */
         public static function checkIP()
         {
-            global $setUp;
+            $setUp = SetUp::getInstance();
             $kickoff = false;
             $ip_list = $setUp->getConfig('ip_list');
             $guest_ip = $_SERVER['REMOTE_ADDR'];

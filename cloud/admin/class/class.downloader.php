@@ -21,7 +21,7 @@ if (!class_exists('Downloader', false)) {
          */
         public function subDir($checkPath)
         {
-            global $gateKeeper;
+            $gateKeeper = GateKeeper::getInstance();
 
             if ($gateKeeper->getUserInfo('dir') == null) {
                 return true;
@@ -47,7 +47,7 @@ if (!class_exists('Downloader', false)) {
          */
         public function checkFile($checkfile, $path = '')
         {
-            global $setUp;
+            $setUp = SetUp::getInstance();
             $fileclean = ltrim(base64_decode($checkfile), './');
             $file = $path.'../'.ltrim(urldecode($fileclean), './');
 
@@ -83,7 +83,7 @@ if (!class_exists('Downloader', false)) {
          */
         public function checkTime($time)
         {
-            global $setUp;
+            $setUp = SetUp::getInstance();
 
             $lifedays = (int)$setUp->getConfig('lifetime');
             $lifetime = 86400 * $lifedays;
@@ -162,12 +162,12 @@ if (!class_exists('Downloader', false)) {
         ) {
             // Gzip enabled may set the wrong file size.
             if (function_exists('apache_setenv')) {
-                @apache_setenv('no-gzip', 1);
+                apache_setenv('no-gzip', 1);
             }
             if (ini_get('zlib.output_compression')) {
-                @ini_set('zlib.output_compression', 'Off');
+                ini_set('zlib.output_compression', 'Off');
             }
-            @set_time_limit(0);
+            set_time_limit(0);
             session_write_close();
             header("Content-Length: ".$file_size);
 
@@ -185,7 +185,7 @@ if (!class_exists('Downloader', false)) {
             }
             $handle = fopen($file, 'rb');
             if ($handle !== false && $file_size > 0) {
-                @flock($handle, LOCK_SH);
+                flock($handle, LOCK_SH);
                 $start = 0;
                 $end = $file_size - 1;
                 $chunk = 8 * 1024;
@@ -193,18 +193,19 @@ if (!class_exists('Downloader', false)) {
                 $error = false;
                 while (!$error) {
                     if ($chunk >= $requested) {
-                        $chunk = (integer)$requested;
+                        $chunk = (int)$requested;
                     }
                     while (!feof($handle) && (connection_status() === 0)) {
-                        if (!$buffer = @fread($handle, $chunk)) {
+                        $buffer = fread($handle, $chunk);
+                        if ($buffer === false) {
                             $error = true;
                             break 2;
                         }
                         print($buffer);
                         flush();
                     }
-                    @flock($handle, LOCK_UN);
-                    @fclose($handle);
+                    flock($handle, LOCK_UN);
+                    fclose($handle);
                     break;
                 }
                 if ($error) {

@@ -22,7 +22,7 @@ if (!class_exists('Logger', false)) {
          */
         public static function log($message, $relpath = 'admin/')
         {
-            global $setUp;
+            $setUp = SetUp::getInstance();
             if ($setUp->getConfig('log_file') == true) {
                 $logjson = dirname(dirname(__FILE__)).'/_content/log/'.date('Y-m-d').'.json';
 
@@ -36,16 +36,21 @@ if (!class_exists('Logger', false)) {
 
                     $daily = date('Y-m-d');
                     $oldlog[$daily][] = $message;
-                    $f = fopen($logjson, 'a');
+
                     if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-                        file_put_contents($logjson, json_encode($oldlog, JSON_FORCE_OBJECT));
+                        file_put_contents($logjson, json_encode($oldlog, JSON_FORCE_OBJECT), LOCK_EX);
                     } else {
-                        if (flock($f, LOCK_EX | LOCK_NB)) {
-                            file_put_contents($logjson, json_encode($oldlog, JSON_FORCE_OBJECT));
+                        $f = fopen($logjson, 'c');
+                        if ($f && flock($f, LOCK_EX | LOCK_NB)) {
+                            ftruncate($f, 0);
+                            fwrite($f, json_encode($oldlog, JSON_FORCE_OBJECT));
+                            fflush($f);
                             flock($f, LOCK_UN);
                         }
+                        if ($f) {
+                            fclose($f);
+                        }
                     }
-                    fclose($f);
                 } else {
                     Utils::setError('The script does not have permissions to write inside "/_content/log/" folder. check CHMOD'.$logjson);
                     return;
@@ -60,8 +65,8 @@ if (!class_exists('Logger', false)) {
          */
         public static function logAccess()
         {
-            global $gateKeeper;
-            global $setUp;
+            $gateKeeper = GateKeeper::getInstance();
+            $setUp = SetUp::getInstance();
             $message = array(
                 'user' => $gateKeeper->getUserInfo('name'),
                 'action' => 'log_in',
@@ -81,16 +86,17 @@ if (!class_exists('Logger', false)) {
          */
         public static function getClientIP()
         {
-            if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
-                // check ip from share internet
-                $ip = $_SERVER['HTTP_CLIENT_IP'];
-            } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-                // check ip is pass from proxy
-                $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
-            } elseif (!empty($_SERVER['REMOTE_ADDR'])) {
+            // Only trust REMOTE_ADDR for security decisions
+            // HTTP_CLIENT_IP and HTTP_X_FORWARDED_FOR are client-controlled and spoofable
+            if (!empty($_SERVER['REMOTE_ADDR'])) {
                 $ip = $_SERVER['REMOTE_ADDR'];
             } else {
                 $ip = 'UNKNOWN';
+            }
+            // Append forwarded-for info for logging only (clearly labeled)
+            if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+                $forwarded = filter_var($_SERVER['HTTP_X_FORWARDED_FOR'], FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+                $ip .= ' (forwarded-for: '.$forwarded.')';
             }
             return $ip;
         }
@@ -105,8 +111,8 @@ if (!class_exists('Logger', false)) {
          */
         public static function logCreation($path, $isDir)
         {
-            global $gateKeeper;
-            global $setUp;
+            $gateKeeper = GateKeeper::getInstance();
+            $setUp = SetUp::getInstance();
             $path = addslashes($path);
             $message = array(
                 'user' => $gateKeeper->getUserInfo('name'),
@@ -134,7 +140,7 @@ if (!class_exists('Logger', false)) {
          */
         public static function logDeletion($path, $isDir, $remote = false)
         {
-            global $gateKeeper;
+            $gateKeeper = GateKeeper::getInstance();
             $path = addslashes($path);
             $message = array(
                 'user' => $gateKeeper->getUserInfo('name'),
@@ -156,8 +162,8 @@ if (!class_exists('Logger', false)) {
          */
         public static function logDownload($path, $folder = false, $relative = '')
         {
-            global $gateKeeper;
-            global $setUp;
+            $gateKeeper = GateKeeper::getInstance();
+            $setUp = SetUp::getInstance();
             $user = $gateKeeper->getUserName();
             $mailmessage = '';
             $type = $folder ? 'folder' : 'file';
@@ -198,7 +204,7 @@ if (!class_exists('Logger', false)) {
          */
         public static function logPlay($path)
         {
-            global $gateKeeper;
+            $gateKeeper = GateKeeper::getInstance();
             $path = addslashes($path);
             $message = array(
                 'user' =>  $gateKeeper->getUserInfo('name') ? $gateKeeper->getUserInfo('name') : '--',
@@ -219,8 +225,8 @@ if (!class_exists('Logger', false)) {
          */
         public static function emailNotification($path, $action = false)
         {
-            global $setUp;
-            global $gateKeeper;
+            $setUp = SetUp::getInstance();
+            $gateKeeper = GateKeeper::getInstance();
 
             if (strlen($setUp->getConfig('upload_email')) > 5) {
 
@@ -250,13 +256,14 @@ if (!class_exists('Logger', false)) {
          
                 $sendTo = $setUp->getConfig('upload_email');
                 $from = "=?UTF-8?B?".base64_encode($appname)."?=";
+                $server_name = preg_replace('/[^a-zA-Z0-9.-]/', '', $_SERVER['SERVER_NAME'] ?? 'localhost');
                 mail(
                     $sendTo,
                     "=?UTF-8?B?".base64_encode($title)."?=",
                     $message,
                     "Content-type: text/plain; charset=UTF-8\r\n".
-                    "From: ".$from." <noreply@{$_SERVER['SERVER_NAME']}>\r\n".
-                    "Reply-To: ".$from." <noreply@{$_SERVER['SERVER_NAME']}>"
+                    "From: ".$from." <noreply@{$server_name}>\r\n".
+                    "Reply-To: ".$from." <noreply@{$server_name}>"
                 );
             }
         }

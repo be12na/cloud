@@ -251,10 +251,8 @@ if (!class_exists('SetUp', false)) {
          */
         public function getConfig($name, $default = false)
         {
-            if ($this->_CONFIG && isset($this->_CONFIG[$name])) {
-                if ($this->_CONFIG[$name] !== false) {
-                    return $this->_CONFIG[$name];
-                }
+            if ($this->_CONFIG && array_key_exists($name, $this->_CONFIG)) {
+                return $this->_CONFIG[$name];
             }
             return $default;
         }

@@ -58,8 +58,8 @@ $jsonindex = "translations/index.json";
 $translations_index = json_decode(file_get_contents($jsonindex), true);
 global $translations_index;
 
-$posteditlang = filter_input(INPUT_POST, "editlang", FILTER_SANITIZE_SPECIAL_CHARS);
-$postnewlang = filter_input(INPUT_POST, "newlang", FILTER_SANITIZE_SPECIAL_CHARS);
+$posteditlang = filter_input(INPUT_POST, "editlang", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+$postnewlang = filter_input(INPUT_POST, "newlang", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 $thelang = ($posteditlang ? $posteditlang : "en");
 $thenewlang = ($postnewlang ? $postnewlang : null);
 $editlang = ($thenewlang ? $thenewlang : $thelang);
@@ -88,14 +88,14 @@ $translations = $admin->getLanguages();
 $activesec = "home";
 
 $allsections = array(
-    'superadmin_can_statistics' => 'appearance',
+    'superadmin_can_appearance' => 'appearance',
     'superadmin_can_users' => 'users',
     'superadmin_can_translations' => 'translations',
     'superadmin_can_statistics' => 'logs',
 );
 
-$get_section = filter_input(INPUT_GET, 'section', FILTER_SANITIZE_SPECIAL_CHARS);
-$get_action = filter_input(INPUT_GET, 'action', FILTER_SANITIZE_SPECIAL_CHARS);
+$get_section = filter_input(INPUT_GET, 'section', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+$get_action = filter_input(INPUT_GET, 'action', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
 if (!$get_section && !$gateKeeper->canSuperAdmin('superadmin_can_preferences') ) {
 

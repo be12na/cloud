@@ -35,7 +35,7 @@ if (!$setfrom || !strlen($setfrom)) {
 }
 
 $filterType = array(
-    'string' => FILTER_SANITIZE_SPECIAL_CHARS,
+    'string' => FILTER_SANITIZE_FULL_SPECIAL_CHARS,
     'integer' => FILTER_VALIDATE_INT,
     'array' => FILTER_DEFAULT,
 );
@@ -45,14 +45,14 @@ $post = array();
 // filter inputs
 foreach ($_POST as $key => $value) {
     $type = gettype($value);
-    $filter = isset($filterType[$type]) ? $filterType[$type] : FILTER_SANITIZE_SPECIAL_CHARS;
+    $filter = isset($filterType[$type]) ? $filterType[$type] : FILTER_SANITIZE_FULL_SPECIAL_CHARS;
     $value = filter_var($value, $filter);
     $post[$key] = $value;
 }
 
 $post = array_filter($post, function($v) { return strlen((string)$v) > 0; });
 
-$postname = filter_input(INPUT_POST, "user_name", FILTER_SANITIZE_SPECIAL_CHARS);
+$postname = filter_input(INPUT_POST, "user_name", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 $postpass = isset($_POST['user_pass']) ? $_POST['user_pass'] : false;
 $postpassconfirm = isset($_POST['user_pass_confirm']) ? $_POST['user_pass_confirm'] : false;
 $postmail = filter_input(INPUT_POST, 'user_email', FILTER_VALIDATE_EMAIL);

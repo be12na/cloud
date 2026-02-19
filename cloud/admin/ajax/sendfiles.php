@@ -22,17 +22,17 @@ $utils = new Utils();
 $lang = $setUp->lang;
 $setfrom = $setUp->getConfig('email_from');
 
-if ($setfrom == null) {
+if ($setfrom === null || $setfrom === '' || $setfrom === false) {
     echo $setUp->getString("setup_email_application");
     exit();
 }
 
 $from = filter_input(INPUT_POST, "mitt", FILTER_VALIDATE_EMAIL);
 $dest = filter_input(INPUT_POST, "dest", FILTER_VALIDATE_EMAIL);
-$link = filter_input(INPUT_POST, "sharelink", FILTER_SANITIZE_SPECIAL_CHARS);
-$attachments = explode(",", filter_input(INPUT_POST, "attach", FILTER_SANITIZE_SPECIAL_CHARS));
-$text_message = filter_input(INPUT_POST, "message", FILTER_SANITIZE_SPECIAL_CHARS);
-$passlink = filter_input(INPUT_POST, "passlink", FILTER_SANITIZE_SPECIAL_CHARS);
+$link = filter_input(INPUT_POST, "sharelink", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+$attachments = explode(",", filter_input(INPUT_POST, "attach", FILTER_SANITIZE_FULL_SPECIAL_CHARS));
+$text_message = filter_input(INPUT_POST, "message", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+$passlink = filter_input(INPUT_POST, "passlink", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 // $link = htmlspecialchars($_POST['sharelink']);
 // $attachments = explode(",", htmlspecialchars($_POST['attach']));
 // $text_message = htmlspecialchars($_POST['message']);
@@ -47,41 +47,8 @@ if ($from && $dest && $link) {
 
     $mail = new PHPMailer();
 
-    $mail->CharSet = 'UTF-8';
-    $mail->setLanguage($lang);
+    Utils::configureSMTP($mail, $setUp, $lang);
 
-    if ($setUp->getConfig('smtp_enable') == true) {
-
-        $mail->SMTPDebug = ($setUp->getConfig('debug_smtp') ? 2 : 0);
-        $mail->Debugoutput = 'html';
-
-        $mail->isSMTP();
-
-        $mail->Host = $setUp->getConfig('smtp_server');
-
-        $smtp_auth = $setUp->getConfig('smtp_auth');
-        $mail->SMTPAuth = $smtp_auth;
-
-        if ($smtp_auth == true) {
-            $mail->Username = $setUp->getConfig('email_login');
-            $mail->Password = $setUp->getConfig('email_pass');
-        }
-
-        if (version_compare(PHP_VERSION, '5.6.0', '>=')) {
-            $mail->SMTPOptions = array(
-                'ssl' => array(
-                    'verify_peer' => false,
-                    'verify_peer_name' => false,
-                    'allow_self_signed' => true
-                )
-            );
-        }
-            
-        if ($setUp->getConfig('secure_conn') !== "none") {
-            $mail->SMTPSecure = $setUp->getConfig('secure_conn');
-        }
-        $mail->Port = (int)$setUp->getConfig('port');
-    }
     $app_name = $setUp->getConfig('appname');
     $app_url = $setUp->getConfig('script_url');
 
@@ -124,7 +91,7 @@ if ($from && $dest && $link) {
     $message = str_replace('%translate_download%', $setUp->getString('download'), $message);
     $passalink = ($passlink ? $setUp->getString('password').": <strong>".$passlink."</strong>" : "");
     $message = str_replace('%passlink%', $passalink, $message);
-    $message = str_replace('%text_message%', nl2br($text_message), $message);
+    $message = str_replace('%text_message%', nl2br((string)$text_message), $message);
 
     $mail->msgHTML($message);
 

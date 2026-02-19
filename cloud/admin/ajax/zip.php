@@ -23,11 +23,13 @@ require_once  dirname(dirname(__FILE__)).'/class/class.utils.php';
 $setUp = new SetUp();
 $zipper = new Zipper();
 
-$getfiles = is_array($_POST['files']) ? filter_var_array($_POST['files'], FILTER_SANITIZE_SPECIAL_CHARS) : false;
-$getfolder = filter_input(INPUT_POST, 'folder', FILTER_SANITIZE_SPECIAL_CHARS);
-$time = filter_input(INPUT_POST, "time", FILTER_SANITIZE_SPECIAL_CHARS);
-$hash = filter_input(INPUT_POST, 'dash', FILTER_SANITIZE_SPECIAL_CHARS);
-$onetime = filter_input(INPUT_POST, 'onetime', FILTER_SANITIZE_SPECIAL_CHARS);
+header('Content-Type: application/json');
+
+$getfiles = isset($_POST['files']) && is_array($_POST['files']) ? filter_var_array($_POST['files'], FILTER_SANITIZE_FULL_SPECIAL_CHARS) : false;
+$getfolder = filter_input(INPUT_POST, 'folder', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+$time = filter_input(INPUT_POST, "time", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+$hash = filter_input(INPUT_POST, 'dash', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+$onetime = filter_input(INPUT_POST, 'onetime', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 // $getfiles = is_array($_POST['files']) ? filter_var_array($_POST['files']) : false;
 // $getfolder = htmlspecialchars($_POST['folder']);
 // $time = htmlspecialchars($_POST['time']);

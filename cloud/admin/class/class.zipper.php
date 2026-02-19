@@ -35,7 +35,7 @@ if (!class_exists('Zipper', false)) {
                 }
             }
 
-            global $setUp;
+            $setUp = SetUp::getInstance();
 
             $time = time();
             $json_name = md5($folder.$time);

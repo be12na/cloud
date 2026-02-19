@@ -22,8 +22,8 @@ if (!class_exists('Location', false)) {
          */
         public function __construct($getdir = false)
         {
-            global $setUp;
-            $getdir = $getdir ? $getdir : filter_input(INPUT_GET, 'dir', FILTER_SANITIZE_SPECIAL_CHARS);
+            $setUp = SetUp::getInstance();
+            $getdir = $getdir ? $getdir : filter_input(INPUT_GET, 'dir', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
             // if (!$getdir || !is_dir($getdir)) {
             if (!$getdir) {
                 $this->path = $this->splitPath($setUp->getConfig('starting_dir'));
@@ -41,7 +41,7 @@ if (!class_exists('Location', false)) {
          */
         public static function splitPath($dir)
         {
-            global $setUp;
+            $setUp = SetUp::getInstance();
             $dir = stripslashes($dir);
             $path1 = preg_split("/[\\\\\/]+/", $dir);
             $path2 = array();
@@ -122,7 +122,7 @@ if (!class_exists('Location', false)) {
          */
         public function getFullPath($path = false)
         {
-            global $setUp;
+            $setUp = SetUp::getInstance();
             $fullpath = (strlen($setUp->getConfig('basedir')) > 0 ? $setUp->getConfig('basedir') : str_replace('\\', '/', dirname(dirname(dirname(realpath(__FILE__))))))."/".$this->getDir(false, false, false, 0);
             $fullpath = Utils::extraChars($fullpath);
             return $fullpath;
@@ -136,7 +136,7 @@ if (!class_exists('Location', false)) {
          */
         public function getCleanPath()
         {
-            global $setUp;
+            $setUp = SetUp::getInstance();
             $thispath = $this->getDir(true, false, false, 0);
             $fullpath = str_replace($setUp->getConfig('starting_dir'), '', $thispath);
             return $fullpath;
@@ -153,7 +153,7 @@ if (!class_exists('Location', false)) {
          */
         public function editAllowed($relative = false)
         {
-            global $setUp;
+            $setUp = SetUp::getInstance();
             $totdirs = count($this->path);
 
             $father = $this->getDir(false, true, false, $totdirs -1);
@@ -179,8 +179,8 @@ if (!class_exists('Location', false)) {
          */
         public function checkUserDir($relative = false)
         {
-            global $gateKeeper;
-            global $setUp;
+            $gateKeeper = GateKeeper::getInstance();
+            $setUp = SetUp::getInstance();
 
             $thispath = $this->getDir(true, false, false, 0, $relative);
 

@@ -8,7 +8,7 @@
 if (!defined('VFM_APP')) {
     return;
 }
-$regactive = filter_input(INPUT_GET, "act", FILTER_SANITIZE_SPECIAL_CHARS);
+$regactive = filter_input(INPUT_GET, "act", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
 if ($regactive && $setUp->getConfig("registration_enable") == true) :
     $newusers = $gateKeeper->getUsersNew();

@@ -58,7 +58,7 @@ if (!class_exists('Admin', false)) {
          */
         public function getFolders($dir = '')
         {
-            global $setUp;
+            $setUp = SetUp::getInstance();
             $folders = array();
             $directory = '.'.$setUp->getConfig('starting_dir');
             $scandir = $dir.$directory;
@@ -112,11 +112,10 @@ if (!class_exists('Admin', false)) {
          */
         public function updateUsers($users)
         {
-            global $setUp;
+            $setUp = SetUp::getInstance();
             if ($users) {
-                $usrs = '$_USERS = ';
-                if (false == (file_put_contents('_content/users/users.php', "<?php\n\n $usrs".var_export($users, true).";\n"))) {
-                    Utils::setError('Error writing on _content/users/users.php, check CHMOD');
+                if (!Utils::saveJson('_content/users/users.json', $users)) {
+                    Utils::setError('Error writing on _content/users/users.json, check CHMOD');
                 } else {
                     $_USERS = $users;
                     Utils::setSuccess($setUp->getString("users_updated"));

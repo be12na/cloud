@@ -21,14 +21,14 @@ if (!defined('VFM_APP')) {
             <div class="card-body">
 
 <?php
-$getusr = filter_input(INPUT_GET, "usr", FILTER_SANITIZE_SPECIAL_CHARS);
+$getusr = filter_input(INPUT_GET, "usr", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 /**
  * Reset password
  */
 if ($getusr && $resetter->checkTok($getrp, $getusr) == true) : ?>
 
-        <form role="form" method="post" id="rpForm" action="<?php echo htmlentities($_SERVER['PHP_SELF']); ?>">
-
+        <form role="form" method="post" id="rpForm" action="<?php echo htmlspecialchars($_SERVER['SCRIPT_NAME'], ENT_QUOTES, 'UTF-8'); ?>">
+            <?php echo Utils::csrfField(); ?>
             <div class="sendresponse"></div>
 
             <div class="d-flex flex-column mb-3">

@@ -183,12 +183,32 @@ if (!class_exists('File', false)) {
          */
         public function isValidForThumb()
         {
-            global $setUp;
+            $setUp = SetUp::getInstance();
             if ($setUp->getConfig('thumbnails') !== true && $setUp->getConfig('inline_thumbs') !== true) {
                 return false;
             }
             if ($this->isImage() || ($this->isPdf() && ImageServer::isEnabledPdf())
             ) {
+                return true;
+            }
+            return false;
+        }
+
+        /**
+         * Check if file is valid for creating video thumbnail
+         *
+         * @return true/false
+         */
+        public function isValidForVideoThumb()
+        {
+            $setUp = SetUp::getInstance();
+            if ($setUp->getConfig('video_thumbnails') !== true) {
+                return false;
+            }
+            if ($setUp->getConfig('thumbnails') !== true && $setUp->getConfig('inline_thumbs') !== true) {
+                return false;
+            }
+            if ($this->isVideo() && ImageServer::isEnabledFfmpeg()) {
                 return true;
             }
             return false;
@@ -201,7 +221,7 @@ if (!class_exists('File', false)) {
          */
         public function isValidForAudio()
         {
-            global $setUp;
+            $setUp = SetUp::getInstance();
             if ($setUp->getConfig('playmusic') == true
                 && $this->isAudio()
             ) {
@@ -217,7 +237,7 @@ if (!class_exists('File', false)) {
          */
         public function isValidForVideo()
         {
-            global $setUp;
+            $setUp = SetUp::getInstance();
             if ($setUp->getConfig('playvideo') == true
                 && $this->isVideo()
             ) {

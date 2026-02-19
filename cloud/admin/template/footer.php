@@ -37,11 +37,11 @@ $privacy = file_exists($privacy_file) ? file_get_contents($privacy_file) : false
                 <?php
                 if ($setUp->getConfig('credits_link')) { ?>
                     <a target="_blank" href="<?php echo $setUp->getConfig('credits_link'); ?>">
-                        <?php echo $credits; ?>
+                        <?php echo htmlspecialchars($credits, ENT_QUOTES, 'UTF-8'); ?>
                     </a>
                     <?php
                 } else {
-                    echo $credits;
+                    echo htmlspecialchars($credits, ENT_QUOTES, 'UTF-8');
                 } ?>
                 </div>
                 <?php

@@ -18,9 +18,9 @@ require_once dirname(dirname(__FILE__)).'/class/class.uploader.php';
 
 $uploader = new Uploader();
 $setUp = new SetUp();
-$getloc = filter_input(INPUT_GET, 'loc', FILTER_SANITIZE_SPECIAL_CHARS);
+$getloc = filter_input(INPUT_GET, 'loc', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
-$starttrim = ltrim($setUp->getConfig('starting_dir'), './');
+$starttrim = ltrim((string)$setUp->getConfig('starting_dir'), './');
 $getloc = $getloc ? ltrim(urldecode(base64_decode($getloc)), './') : false;
 
 if ($getloc && mb_substr($getloc, 0, mb_strlen($starttrim)) == $starttrim) {
@@ -43,7 +43,8 @@ $gateKeeper = new GateKeeper();
 if ($gateKeeper->isAccessAllowed() && ($gateKeeper->isAllowed('upload_enable')) && $location->editAllowed('../../')) {
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
-        $resumabledata = $uploader->setupFilename($_GET['resumableFilename']);
+        $resumableFilename = isset($_GET['resumableFilename']) ? $_GET['resumableFilename'] : '';
+        $resumabledata = $uploader->setupFilename($resumableFilename);
         $resumableFilename = $resumabledata['filename'];
         $extension = $resumabledata['extension'];
         $basename = $resumabledata['basename'];
@@ -51,12 +52,12 @@ if ($gateKeeper->isAccessAllowed() && ($gateKeeper->isAllowed('upload_enable')) 
         $fullfilepath = $getlocfull.$resumableFilename;
 
         // Skip invalid file
-        if (!$uploader->veryFile($fullfilepath, $_GET['resumableTotalSize'])) {
+        if (!$uploader->veryFile($fullfilepath, isset($_GET['resumableTotalSize']) ? $_GET['resumableTotalSize'] : 0)) {
             header("HTTP/1.0 200 Ok");
             exit;
         }
-        $temp_dir = '../tmp/'.$_GET['resumableIdentifier'];
-        $uploader_file = $temp_dir.'/'.$resumableFilename.'.part'.$_GET['resumableChunkNumber'];
+        $temp_dir = '../tmp/'.(isset($_GET['resumableIdentifier']) ? $_GET['resumableIdentifier'] : '');
+        $uploader_file = $temp_dir.'/'.$resumableFilename.'.part'.(isset($_GET['resumableChunkNumber']) ? $_GET['resumableChunkNumber'] : '');
 
         if (!file_exists($uploader_file)) {
             header("HTTP/1.0 204 No Content");
@@ -69,13 +70,13 @@ if ($gateKeeper->isAccessAllowed() && ($gateKeeper->isAllowed('upload_enable')) 
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_FILES)) {
         @set_time_limit(0);
 
-        $resumableIdentifier = filter_input(INPUT_POST, 'resumableIdentifier', FILTER_SANITIZE_SPECIAL_CHARS);
+        $resumableIdentifier = filter_input(INPUT_POST, 'resumableIdentifier', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
         $resumableChunkNumber = filter_input(INPUT_POST, 'resumableChunkNumber', FILTER_VALIDATE_INT);
         $resumableTotalSize = filter_input(INPUT_POST, 'resumableTotalSize', FILTER_VALIDATE_INT);
         $resumableTotalChunks = filter_input(INPUT_POST, 'resumableTotalChunks', FILTER_VALIDATE_INT);
         $resumableChunkSize = filter_input(INPUT_POST, 'resumableChunkSize', FILTER_VALIDATE_INT);
 
-        $resumabledata = $uploader->setupFilename($_POST['resumableFilename']);
+        $resumabledata = $uploader->setupFilename(isset($_POST['resumableFilename']) ? $_POST['resumableFilename'] : '');
         $resumableFilename = $resumabledata['filename'];
         $finalFilename = $resumabledata['finalname'];
 

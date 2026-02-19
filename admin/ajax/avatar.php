@@ -62,8 +62,8 @@ if (!is_dir($relativepath)) {
     mkdir($relativepath, 0755);         
 }
 
-$postimg = filter_input(INPUT_POST, 'imgData', FILTER_SANITIZE_SPECIAL_CHARS);
-$imgname = filter_input(INPUT_POST, 'imgName', FILTER_SANITIZE_SPECIAL_CHARS);
+$postimg = filter_input(INPUT_POST, 'imgData', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+$imgname = filter_input(INPUT_POST, 'imgName', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
 // Sanitize filename to prevent path traversal
 $imgname = basename($imgname);

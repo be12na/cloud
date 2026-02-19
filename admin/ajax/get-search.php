@@ -20,7 +20,9 @@ require_once dirname(dirname(__FILE__)).'/class/class.search.php';
 $setUp = new SetUp();
 $gateKeeper = new GateKeeper();
 
-$searchkey = filter_input(INPUT_GET, 's', FILTER_SANITIZE_SPECIAL_CHARS);
+header('Content-Type: application/json');
+
+$searchkey = filter_input(INPUT_GET, 's', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
 $final = array();
 

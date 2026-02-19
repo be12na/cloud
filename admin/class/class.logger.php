@@ -95,7 +95,7 @@ if (!class_exists('Logger', false)) {
             }
             // Append forwarded-for info for logging only (clearly labeled)
             if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-                $forwarded = filter_var($_SERVER['HTTP_X_FORWARDED_FOR'], FILTER_SANITIZE_SPECIAL_CHARS);
+                $forwarded = filter_var($_SERVER['HTTP_X_FORWARDED_FOR'], FILTER_SANITIZE_FULL_SPECIAL_CHARS);
                 $ip .= ' (forwarded-for: '.$forwarded.')';
             }
             return $ip;

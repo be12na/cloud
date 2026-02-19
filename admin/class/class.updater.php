@@ -20,8 +20,8 @@ if (!class_exists('Updater', false)) {
         public function init()
         {
             $updater = $this;
-            $posteditname = filter_input(INPUT_POST, "user_new_name", FILTER_SANITIZE_SPECIAL_CHARS);
-            $postoldname = filter_input(INPUT_POST, "user_old_name", FILTER_SANITIZE_SPECIAL_CHARS);
+            $posteditname = filter_input(INPUT_POST, "user_new_name", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+            $postoldname = filter_input(INPUT_POST, "user_old_name", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
             $posteditpass = isset($_POST['user_new_pass']) ? $_POST['user_new_pass'] : false;
             $posteditpasscheck = isset($_POST['user_new_pass_confirm']) ? $_POST['user_new_pass_confirm'] : false;
             $postoldpass = isset($_POST['user_old_pass']) ? $_POST['user_old_pass'] : false;
@@ -112,7 +112,7 @@ if (!class_exists('Updater', false)) {
                         if ($customfield['type'] == 'email') {
                             $cleanfield = filter_input(INPUT_POST, $customkey, FILTER_VALIDATE_EMAIL);
                         } else {
-                            $cleanfield = filter_input(INPUT_POST, $customkey, FILTER_SANITIZE_SPECIAL_CHARS);
+                            $cleanfield = filter_input(INPUT_POST, $customkey, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
                         }
                         if ($cleanfield) {
                             $new_users = $updater->updateUserData($postoldname, $customkey, $cleanfield, $new_users);

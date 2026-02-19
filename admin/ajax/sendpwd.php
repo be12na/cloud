@@ -34,7 +34,7 @@ $resetter = new Resetter();
 $lang = $setUp->lang;
 
 $dest = filter_input(INPUT_POST, "user_email", FILTER_VALIDATE_EMAIL);
-$pulito = filter_input(INPUT_POST, 'cleanurl', FILTER_SANITIZE_SPECIAL_CHARS);
+$pulito = filter_input(INPUT_POST, 'cleanurl', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 // $pulito = htmlspecialchars($_POST['cleanurl']);
 
 $setfrom = $setUp->getConfig('email_from');

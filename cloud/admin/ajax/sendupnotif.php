@@ -18,11 +18,11 @@ require_once dirname(dirname(__FILE__)).'/class/class.setup.php';
 require_once dirname(dirname(__FILE__)).'/class/class.gatekeeper.php';
 require_once dirname(dirname(__FILE__)).'/class/class.logger.php';
 
-$lang = filter_input(INPUT_POST, 'thislang', FILTER_SANITIZE_SPECIAL_CHARS);
+$lang = filter_input(INPUT_POST, 'thislang', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 $senduser = filter_input(INPUT_POST, 'senduser', FILTER_VALIDATE_EMAIL, FILTER_REQUIRE_ARRAY);
-$postpath = filter_input(INPUT_POST, 'path', FILTER_SANITIZE_SPECIAL_CHARS);
-$postfilename = filter_input(INPUT_POST, 'filename', FILTER_SANITIZE_SPECIAL_CHARS, FILTER_REQUIRE_ARRAY);
-$uploader_message = filter_input(INPUT_POST, 'uploader_message', FILTER_SANITIZE_SPECIAL_CHARS);
+$postpath = filter_input(INPUT_POST, 'path', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+$postfilename = filter_input(INPUT_POST, 'filename', FILTER_SANITIZE_FULL_SPECIAL_CHARS, FILTER_REQUIRE_ARRAY);
+$uploader_message = filter_input(INPUT_POST, 'uploader_message', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
 use PHPMailer\PHPMailer\PHPMailer;
 
@@ -33,7 +33,7 @@ $appname = $setUp->getConfig('appname');
 $time = $setUp->formatModTime(time());
 
 // Send Log notification for multiple uploads
-if (strlen($setUp->getConfig('upload_email')) > 5 && $setUp->getConfig('notify_upload')) {
+if (strlen((string)$setUp->getConfig('upload_email')) > 5 && $setUp->getConfig('notify_upload')) {
     $title = $setUp->getString('new_upload');
     $path = $postpath ? urldecode($postpath) : '';
 
@@ -49,13 +49,14 @@ if (strlen($setUp->getConfig('upload_email')) > 5 && $setUp->getConfig('notify_u
 
     $sendTo = $setUp->getConfig('upload_email');
     $from = "=?UTF-8?B?".base64_encode($appname)."?=";
+    $server_name = preg_replace('/[^a-zA-Z0-9.-]/', '', $_SERVER['SERVER_NAME'] ?? 'localhost');
     mail(
         $sendTo,
         "=?UTF-8?B?".base64_encode($title)."?=",
         $message,
         "Content-type: text/plain; charset=UTF-8\r\n".
-        "From: ".$from." <noreply@{$_SERVER['SERVER_NAME']}>\r\n".
-        "Reply-To: ".$from." <noreply@{$_SERVER['SERVER_NAME']}>"
+        "From: ".$from." <noreply@{$server_name}>\r\n".
+        "Reply-To: ".$from." <noreply@{$server_name}>"
     );
 
     echo 'LOG NOTIFICATION SENT';
@@ -65,7 +66,7 @@ if (strlen($setUp->getConfig('upload_email')) > 5 && $setUp->getConfig('notify_u
 if ($senduser) {
     $setfrom = $setUp->getConfig('email_from');
 
-    if ($setfrom == null) {
+    if ($setfrom === null || $setfrom === '' || $setfrom === false) {
         echo $setUp->getString("setup_email_application")."<br>";
         exit;
     }
@@ -96,35 +97,7 @@ if ($senduser) {
 
     $mail = new PHPMailer();
 
-    $mail->CharSet = 'UTF-8';
-    $mail->setLanguage($lang);
-
-    if ($setUp->getConfig('smtp_enable') == true) {
-        $mail->isSMTP();
-        
-        $smtp_auth = $setUp->getConfig('smtp_auth');
-        $mail->Host = $setUp->getConfig('smtp_server');
-        $mail->Port = (int)$setUp->getConfig('port');
-        if (version_compare(PHP_VERSION, '5.6.0', '>=')) {
-            $mail->SMTPOptions = array(
-                'ssl' => array(
-                    'verify_peer' => false,
-                    'verify_peer_name' => false,
-                    'allow_self_signed' => true,
-                )
-            );
-        }
-        if ($setUp->getConfig('secure_conn') !== "none") {
-            $mail->SMTPSecure = $setUp->getConfig('secure_conn');
-        }
-        
-        $mail->SMTPAuth = $smtp_auth;
-
-        if ($smtp_auth == true) {
-            $mail->Username = $setUp->getConfig('email_login');
-            $mail->Password = $setUp->getConfig('email_pass');
-        }
-    }
+    Utils::configureSMTP($mail, $setUp, $lang);
 
     $mail->setFrom($setfrom, $appname);
     $mail->Subject = $title;
@@ -140,7 +113,7 @@ if ($senduser) {
     $message = str_replace('%translate_from%', $setUp->getString('from'), $message);
     $message = str_replace('%username%', $name, $message);
     $message = str_replace('%upfiles%', $upfiles, $message);
-    $message = str_replace('%uploader_message%', nl2br($uploader_message), $message);
+    $message = str_replace('%uploader_message%', nl2br((string)$uploader_message), $message);
 
     $mail->msgHTML($message);
 

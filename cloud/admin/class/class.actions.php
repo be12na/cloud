@@ -22,15 +22,15 @@ if (!class_exists('Actions', false)) {
         public function __construct($location = false)
         {
             if (!$location) {
-                return false;
+                return;
             }
 
-            global $gateKeeper;
+            $gateKeeper = GateKeeper::getInstance();
 
-            $postnewdir = filter_input(INPUT_POST, 'userdir', FILTER_SANITIZE_SPECIAL_CHARS);
-            $renamedir = filter_input(INPUT_POST, 'newname', FILTER_SANITIZE_SPECIAL_CHARS);
-            $postoldname = filter_input(INPUT_POST, 'oldname', FILTER_SANITIZE_SPECIAL_CHARS);
-            $getdel = filter_input(INPUT_GET, 'del', FILTER_SANITIZE_SPECIAL_CHARS);
+            $postnewdir = filter_input(INPUT_POST, 'userdir', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+            $renamedir = filter_input(INPUT_POST, 'newname', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+            $postoldname = filter_input(INPUT_POST, 'oldname', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+            $getdel = filter_input(INPUT_GET, 'del', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
             // delete files or folders
             if ($getdel && $gateKeeper->isAllowed('delete_enable')) {
@@ -70,13 +70,13 @@ if (!class_exists('Actions', false)) {
          */
         public static function checkDel($path)
         {
-            global $gateKeeper;
-            global $setUp;
+            $gateKeeper = GateKeeper::getInstance();
+            $setUp = SetUp::getInstance();
 
             $startdir = $setUp->getConfig('starting_dir');
 
-            $cash = filter_input(INPUT_GET, 'h', FILTER_SANITIZE_SPECIAL_CHARS);
-            $del = filter_input(INPUT_GET, 'del', FILTER_SANITIZE_SPECIAL_CHARS);
+            $cash = filter_input(INPUT_GET, 'h', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+            $del = filter_input(INPUT_GET, 'del', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
             $del = str_replace(' ', '+', $del);
 
@@ -124,10 +124,10 @@ if (!class_exists('Actions', false)) {
          */
         public function setDel($getdel)
         {
-            global $gateKeeper;
-            global $setUp;
+            $gateKeeper = GateKeeper::getInstance();
+            $setUp = SetUp::getInstance();
 
-            if (Actions::checkDel($getdel) == false) {
+            if (Actions::checkDel($getdel) === false) {
                 Utils::setError('<i class="bi bi-slash-circle"></i> '.$setUp->getString('not_allowed'));
                 return;
             }
@@ -224,11 +224,15 @@ if (!class_exists('Actions', false)) {
          */
         public function setRename($postoldname, $postnewname)
         {
-            global $gateKeeper;
+            $gateKeeper = GateKeeper::getInstance();
             if ($gateKeeper->isAccessAllowed() && $gateKeeper->isAllowed('rename_enable')) {
+                if (!Utils::verifyCsrfToken()) {
+                    Utils::setWarning('Invalid form submission');
+                    return;
+                }
 
-                $postthisext = htmlspecialchars($_POST['thisext']);
-                $postthisdir = htmlspecialchars($_POST['thisdir']);
+                $postthisext = basename(filter_input(INPUT_POST, 'thisext', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? '');
+                $postthisdir = filter_input(INPUT_POST, 'thisdir', FILTER_SANITIZE_FULL_SPECIAL_CHARS) ?? '';
 
                 if ($postoldname && $postnewname) {
                     if ($postthisext) {
@@ -256,7 +260,7 @@ if (!class_exists('Actions', false)) {
          */
         public static function renameFile($oldname, $newname, $thenewname, $move = false, $copy = false)
         {
-            global $setUp;
+            $setUp = SetUp::getInstance();
 
             $newname = Utils::extraChars($newname);
 
@@ -347,7 +351,7 @@ if (!class_exists('Actions', false)) {
                             } else {
                                 $output .= '<a href="#" data-dest="'.urlencode('./'.ltrim($dir.$file, './')).'" class="movelink">';
                             }
-                            $output .= '<i class="bi bi-folder"></i> '.$file.'</a>';
+                            $output .= '<i class="bi bi-folder"></i> '.htmlspecialchars($file, ENT_QUOTES, 'UTF-8').'</a>';
                         }
 
                         $scansub = glob($relativedir.$file.'/'.'*', GLOB_ONLYDIR);
@@ -374,8 +378,8 @@ if (!class_exists('Actions', false)) {
          */
         public static function newFolder($location, $dirname)
         {
-            global $setUp;
-            global $gateKeeper;
+            $setUp = SetUp::getInstance();
+            $gateKeeper = GateKeeper::getInstance();
 
             if ($gateKeeper->isAllowed('newdir_enable')) {
                 if (strlen($dirname) > 0) {
@@ -486,7 +490,7 @@ if (!class_exists('Actions', false)) {
          */
         public static function checkUserSpace($file = false, $thissize = false, $upload = false)
         {
-            global $setUp;
+            $setUp = SetUp::getInstance();
 
             if ($upload) {
                 $max_upload_filesize = $setUp->getConfig('max_upload_filesize');

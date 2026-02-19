@@ -16,20 +16,28 @@ if (!isset($_SERVER['HTTP_X_REQUESTED_WITH'])
 require_once  dirname(dirname(__FILE__)).'/class/class.utils.php';
 require_once  dirname(dirname(__FILE__)).'/class/class.downloader.php';
 require_once  dirname(dirname(__FILE__)).'/class/class.setup.php';
+require_once  dirname(dirname(__FILE__)).'/class/class.gatekeeper.php';
 
 $utils = new Utils;
 $downloader = new Downloader();
 $setUp = new SetUp();
+$gateKeeper = new GateKeeper();
 
-$attachments = filter_input(INPUT_POST, "atts", FILTER_SANITIZE_SPECIAL_CHARS);
-$time = filter_input(INPUT_POST, "time", FILTER_SANITIZE_SPECIAL_CHARS);
-$hash = filter_input(INPUT_POST, "hash", FILTER_SANITIZE_SPECIAL_CHARS);
+// Authentication check - only logged-in users can create share links
+if (!$gateKeeper->isUserLoggedIn()) {
+    http_response_code(403);
+    exit('Unauthorized');
+}
+
+$attachments = filter_input(INPUT_POST, "atts", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+$time = filter_input(INPUT_POST, "time", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+$hash = filter_input(INPUT_POST, "hash", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 $pass = isset($_POST['pass']) ? $_POST['pass'] : false;
 
 $hpass = false;
 if ($pass) {
     if (strlen($pass) > 0) {
-        $hpass = md5($pass);
+        $hpass = password_hash($pass, PASSWORD_BCRYPT);
     }
 }
 

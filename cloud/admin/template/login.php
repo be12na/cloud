@@ -23,6 +23,7 @@ if (!$gateKeeper->isAccessAllowed()) { ?>
                 </div>
                 <div class="card-body">
                     <form enctype="multipart/form-data" method="post" role="form" action="<?php echo $location->makeLink(false, null, ""); ?>" class="loginform">
+                        <?php echo Utils::csrfField(); ?>
                         <div id="login_bar" class="form-group">
                             <div class="form-group my-3">
                                 <label class="visually-hidden" for="user_name">
@@ -99,6 +100,7 @@ if (!$gateKeeper->isAccessAllowed()) { ?>
 if ($gateKeeper->isAccessAllowed() && $gateKeeper->showLoginBox()) { ?>
 <section class="vfmblock">
     <form enctype="multipart/form-data" method="post" action="<?php echo $location->makeLink(false, null, ""); ?>" class="row row-cols-md-auto mt-3 align-items-center loginform" role="form">
+        <?php echo Utils::csrfField(); ?>
         <div class="col-12 mb-3">
             <label class="visually-hidden" for="user_name">
                 <?php echo $setUp->getString("username"); ?>:

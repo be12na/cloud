@@ -23,7 +23,7 @@ require_once dirname(dirname(__FILE__)).'/class/class.setup.php';
 require_once dirname(dirname(__FILE__)).'/class/class.location.php';
 require_once dirname(dirname(__FILE__)).'/class/class.gatekeeper.php';
 
-$location_dir = urldecode(filter_input(INPUT_POST, 'get_location', FILTER_SANITIZE_SPECIAL_CHARS));
+$location_dir = urldecode(filter_input(INPUT_POST, 'get_location', FILTER_SANITIZE_FULL_SPECIAL_CHARS));
 $location = new Location('../../'.$location_dir);
 $setUp = new SetUp();
 $gateKeeper = new GateKeeper();

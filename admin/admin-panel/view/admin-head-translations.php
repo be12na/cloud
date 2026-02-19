@@ -2,8 +2,8 @@
 
 
 if ($get_action == 'update') {
-    $postnewlang = filter_input(INPUT_POST, "thenewlang", FILTER_SANITIZE_SPECIAL_CHARS);
-    $getremove = filter_input(INPUT_GET, "remove", FILTER_SANITIZE_SPECIAL_CHARS);
+    $postnewlang = filter_input(INPUT_POST, "thenewlang", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $getremove = filter_input(INPUT_GET, "remove", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
     if ($postnewlang || $getremove) {
 
@@ -36,7 +36,7 @@ if ($get_action == 'update') {
             if (array_key_exists($thelang, $translations)) {
                 foreach ($baselang as $key => $value) {
 
-                    $postkey = filter_input(INPUT_POST, $key, FILTER_SANITIZE_SPECIAL_CHARS);
+                    $postkey = filter_input(INPUT_POST, $key, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
         
                     $_TRANSLATIONSEDIT[$key] = $postkey;
                 }
@@ -45,7 +45,7 @@ if ($get_action == 'update') {
                 $newlang = array();
                 foreach ($baselang as $key => $value) {
 
-                    $postkey = filter_input(INPUT_POST, $key, FILTER_SANITIZE_SPECIAL_CHARS);
+                    $postkey = filter_input(INPUT_POST, $key, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
                     $newlang[$key] = $postkey;
                 }
                 $_TRANSLATIONSEDIT = array_merge($_TRANSLATIONSEDIT, $newlang);

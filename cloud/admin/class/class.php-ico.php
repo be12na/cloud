@@ -14,7 +14,7 @@ class PHP_ICO {
      * @var array
      * @access private
      */
-    var $_images = array();
+    private $_images = array();
 
     /**
      * Flag to tell if the required functions exist.
@@ -22,7 +22,7 @@ class PHP_ICO {
      * @var boolean
      * @access private
      */
-    var $_has_requirements = false;
+    private $_has_requirements = false;
 
 
     /**
@@ -34,7 +34,7 @@ class PHP_ICO {
      * @param string $file Optional. Path to the source image file.
      * @param array $sizes Optional. An array of sizes (each size is an array with a width and height) that the source image should be rendered at in the generated ICO file. If sizes are not supplied, the size of the source image will be used.
      */
-    function __construct( $file = false, $sizes = array() ) {
+    public function __construct( $file = false, $sizes = array() ) {
         $required_functions = array(
             'getimagesize',
             'imagecreatefromstring',
@@ -74,7 +74,7 @@ class PHP_ICO {
      * @param array $sizes Optional. An array of sizes (each size is an array with a width and height) that the source image should be rendered at in the generated ICO file. If sizes are not supplied, the size of the source image will be used.
      * @return boolean true on success and false on failure.
      */
-    function add_image( $file, $sizes = array() ) {
+    public function add_image( $file, $sizes = array() ) {
         if ( ! $this->_has_requirements )
             return false;
 
@@ -116,7 +116,7 @@ class PHP_ICO {
      * @param string $file Path to save the ICO file data into.
      * @return boolean true on success and false on failure.
      */
-    function save_ico( $file ) {
+    public function save_ico( $file ) {
         if ( ! $this->_has_requirements )
             return false;
 
@@ -141,7 +141,7 @@ class PHP_ICO {
      *
      * @access private
      */
-    function _get_ico_data() {
+    private function _get_ico_data() {
         if ( ! is_array( $this->_images ) || empty( $this->_images ) )
             return false;
 
@@ -172,7 +172,7 @@ class PHP_ICO {
      *
      * @access private
      */
-    function _add_image_data( $im ) {
+    private function _add_image_data( $im ) {
         $width = imagesx( $im );
         $height = imagesy( $im );
 
@@ -245,7 +245,7 @@ class PHP_ICO {
      *
      * @access private
      */
-    function _load_image_file( $file ) {
+    private function _load_image_file( $file ) {
         // Run a cheap check to verify that it is an image file.
         if ( false === ( $size = getimagesize( $file ) ) )
             return false;

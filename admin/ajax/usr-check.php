@@ -21,7 +21,7 @@ require_once dirname(dirname(__FILE__)).'/class/class.updater.php';
 $updater = new Updater();
 $gateKeeper = new GateKeeper();
 // $postname = htmlspecialchars($_POST['user_name']);
-$postname = filter_input(INPUT_POST, "user_name", FILTER_SANITIZE_SPECIAL_CHARS);
+$postname = filter_input(INPUT_POST, "user_name", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 if ($postname) {
     $postname = preg_replace('/\s+/', '', $postname);
     if ($updater->findUser($postname) || $updater->findUserPre($postname)) {

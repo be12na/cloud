@@ -41,7 +41,7 @@ if (!class_exists('Files', false)) {
          */
         public function getFiles($fullpath, $relative = '')
         {
-            global $setUp;
+            $setUp = SetUp::getInstance();
 
             if (is_dir($fullpath)) {
 

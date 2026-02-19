@@ -21,7 +21,7 @@ if (!defined('VFM_APP')) {
             <div class="card-body">
 
 <?php
-$getusr = filter_input(INPUT_GET, "usr", FILTER_SANITIZE_SPECIAL_CHARS);
+$getusr = filter_input(INPUT_GET, "usr", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 /**
  * Reset password
  */

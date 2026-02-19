@@ -20,7 +20,7 @@ if (!class_exists('ImageServer', false)) {
         public static function showImage()
         {
             $setUp = SetUp::getInstance();
-            $thumb = filter_input(INPUT_GET, 'thumb', FILTER_SANITIZE_SPECIAL_CHARS);
+            $thumb = filter_input(INPUT_GET, 'thumb', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
             if ($thumb) {
                 $inline = (isset($_GET['in']) ? true : false);
                 if (strlen($thumb) > 0

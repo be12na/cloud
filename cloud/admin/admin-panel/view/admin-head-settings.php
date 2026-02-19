@@ -9,23 +9,23 @@ if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] == 'POST') {
     $_CONFIG['script_url'] = $new_script_url ? $new_script_url : $script_url;
     $_CONFIG['log_file'] = (isset($_POST['log_file']) ? true : false);
 
-    $postappname = filter_input(INPUT_POST, "appname", FILTER_SANITIZE_SPECIAL_CHARS);
+    $postappname = filter_input(INPUT_POST, "appname", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
-    $selectivext = filter_input(INPUT_POST, "selectivext", FILTER_SANITIZE_SPECIAL_CHARS);
+    $selectivext = filter_input(INPUT_POST, "selectivext", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
     if ($selectivext === "allow") {
-        $postupload_allow_type = filter_input(INPUT_POST, "upload_allow_type", FILTER_SANITIZE_SPECIAL_CHARS);
+        $postupload_allow_type = filter_input(INPUT_POST, "upload_allow_type", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
         $postupload_reject_extension = false;
     } else {
         $selectivext = "reject";
-        $postupload_reject_extension = filter_input(INPUT_POST, "upload_reject_extension", FILTER_SANITIZE_SPECIAL_CHARS);
+        $postupload_reject_extension = filter_input(INPUT_POST, "upload_reject_extension", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
         $postupload_allow_type = false;
     }
 
     $postthumbw = filter_input(INPUT_POST, "thumbnails_width", FILTER_VALIDATE_INT);
     $postthumbh = filter_input(INPUT_POST, "thumbnails_height", FILTER_VALIDATE_INT);
-    $listview = filter_input(INPUT_POST, "list_view", FILTER_SANITIZE_SPECIAL_CHARS);
-    $postuploademail = filter_input(INPUT_POST, "upload_email", FILTER_SANITIZE_SPECIAL_CHARS);
+    $listview = filter_input(INPUT_POST, "list_view", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $postuploademail = filter_input(INPUT_POST, "upload_email", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
     if ($postuploademail) {
         $notifylogsarray = array_map('trim', explode(',', $postuploademail));
@@ -40,8 +40,8 @@ if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] == 'POST') {
         $postuploademail = implode(',', $logemailarray);
     }
     
-    $txtdir = filter_input(INPUT_POST, "txt_direction", FILTER_SANITIZE_SPECIAL_CHARS);
-    $poststartingdir = filter_input(INPUT_POST, "starting_dir", FILTER_SANITIZE_SPECIAL_CHARS);
+    $txtdir = filter_input(INPUT_POST, "txt_direction", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $poststartingdir = filter_input(INPUT_POST, "starting_dir", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
     $poststartingdir = $poststartingdir === 'download' ? 'downloads' : $poststartingdir;
 
@@ -58,7 +58,7 @@ if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $_CONFIG['require_login'] = isset($_POST['require_login']) ? true : false;
 
-    $timezone = filter_input(INPUT_POST, "default_timezone", FILTER_SANITIZE_SPECIAL_CHARS);
+    $timezone = filter_input(INPUT_POST, "default_timezone", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
     $_CONFIG['default_timezone'] = $timezone ? $timezone : "UTC";
 
     $_CONFIG['appname'] = $postappname;
@@ -69,10 +69,10 @@ if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] == 'POST') {
     
     $_CONFIG['upload_allow_type'] = $postupload_allow_type ? array_map('trim', explode(',', strtolower($postupload_allow_type))) : false;
 
-    $ip_list = filter_input(INPUT_POST, "ip_list", FILTER_SANITIZE_SPECIAL_CHARS);
+    $ip_list = filter_input(INPUT_POST, "ip_list", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
     $ip_redirect = filter_input(INPUT_POST, "ip_redirect", FILTER_VALIDATE_URL);
-    $ip_blacklist = filter_input(INPUT_POST, "ip_blacklist", FILTER_SANITIZE_SPECIAL_CHARS);
-    $ip_whitelist = filter_input(INPUT_POST, "ip_whitelist", FILTER_SANITIZE_SPECIAL_CHARS);
+    $ip_blacklist = filter_input(INPUT_POST, "ip_blacklist", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    $ip_whitelist = filter_input(INPUT_POST, "ip_whitelist", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
     $_CONFIG['ip_list'] = $ip_list;
     $_CONFIG['ip_redirect'] = $ip_redirect;
@@ -107,9 +107,9 @@ if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $_CONFIG['recaptcha'] = (isset($_POST['recaptcha']) ? true : false);
     
-    $_CONFIG['recaptcha_site'] = filter_input(INPUT_POST, "recaptcha_site", FILTER_SANITIZE_SPECIAL_CHARS);
+    $_CONFIG['recaptcha_site'] = filter_input(INPUT_POST, "recaptcha_site", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
-    $_CONFIG['recaptcha_secret'] = filter_input(INPUT_POST, "recaptcha_secret", FILTER_SANITIZE_SPECIAL_CHARS);
+    $_CONFIG['recaptcha_secret'] = filter_input(INPUT_POST, "recaptcha_secret", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
     $_CONFIG['recaptcha_invisible'] = (isset($_POST['recaptcha_invisible']) ? true : false);
 
@@ -122,6 +122,13 @@ if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] == 'POST') {
     $_CONFIG['thumbnails'] = (isset($_POST['thumbnails']) ? true : false);
 
     $_CONFIG['inline_thumbs'] = (isset($_POST['inline_thumbs']) ? true : false);
+
+    $_CONFIG['video_thumbnails'] = (isset($_POST['video_thumbnails']) ? true : false);
+
+    $_CONFIG['ffmpeg_path'] = filter_input(INPUT_POST, "ffmpeg_path", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+    if (empty($_CONFIG['ffmpeg_path'])) {
+        $_CONFIG['ffmpeg_path'] = 'ffmpeg';
+    }
 
     // delete all thumbnails if size changes
     if ($setUp->getConfig('thumbnails_width') !== (int) $postthumbw
@@ -145,9 +152,9 @@ if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $_CONFIG['max_upload_filesize'] = (int) filter_input(INPUT_POST, 'max_upload_filesize', FILTER_SANITIZE_NUMBER_INT);
 
-    $_CONFIG['overwrite_files'] = isset($_POST['overwrite_files']) ? filter_input(INPUT_POST, 'overwrite_files', FILTER_SANITIZE_SPECIAL_CHARS) : 'no';
+    $_CONFIG['overwrite_files'] = isset($_POST['overwrite_files']) ? filter_input(INPUT_POST, 'overwrite_files', FILTER_SANITIZE_FULL_SPECIAL_CHARS) : 'no';
 
-    $remote_extensions = filter_input(INPUT_POST, 'remote_extensions', FILTER_SANITIZE_SPECIAL_CHARS);
+    $remote_extensions = filter_input(INPUT_POST, 'remote_extensions', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
     $_CONFIG['remote_extensions'] = $remote_extensions ? array_map('trim', explode(',', strtolower($remote_extensions))) : false;
 
@@ -208,16 +215,16 @@ if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] == 'POST') {
     }
     $_CONFIG['registration_enable'] = (isset($_POST['registration_enable']) ? true : false);
 
-    $registration_lifetime = filter_input(INPUT_POST, "registration_lifetime", FILTER_SANITIZE_SPECIAL_CHARS);
+    $registration_lifetime = filter_input(INPUT_POST, "registration_lifetime", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
     $_CONFIG['registration_lifetime'] = $registration_lifetime ? $registration_lifetime : '-1 day';
 
-    $regrole = filter_input(INPUT_POST, "registration_role", FILTER_SANITIZE_SPECIAL_CHARS);
+    $regrole = filter_input(INPUT_POST, "registration_role", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
     $_CONFIG['registration_role'] = $regrole;
 
     $reguserfolders = (isset($_POST['reguserfolders']) ? json_encode($_POST['reguserfolders']) : false);
     $_CONFIG['registration_user_folders'] = $reguserfolders;
 
-    $regquota = filter_input(INPUT_POST, "regquota", FILTER_SANITIZE_SPECIAL_CHARS);
+    $regquota = filter_input(INPUT_POST, "regquota", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
     $_CONFIG['registration_user_quota'] = $regquota;
 
     $_CONFIG['upload_email'] = $postuploademail;
@@ -233,10 +240,10 @@ if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] == 'POST') {
     $filedefnum = filter_input(INPUT_POST, "filedefnum", FILTER_VALIDATE_INT);
     $_CONFIG['filedefnum'] = ($filedefnum ? $filedefnum : 10);
 
-    $filedeforder = filter_input(INPUT_POST, "filedeforder", FILTER_SANITIZE_SPECIAL_CHARS);
+    $filedeforder = filter_input(INPUT_POST, "filedeforder", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
     $_CONFIG['filedeforder'] = $filedeforder ? $filedeforder : "date";
     
-    $default_file_order = filter_input(INPUT_POST, "default_file_order", FILTER_SANITIZE_SPECIAL_CHARS);
+    $default_file_order = filter_input(INPUT_POST, "default_file_order", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
     $_CONFIG['default_file_order'] = $default_file_order ? $default_file_order : "asc";
 
     unset($_SESSION['sort_order']);
@@ -244,10 +251,10 @@ if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] == 'POST') {
     $folderdefnum = filter_input(INPUT_POST, "folderdefnum", FILTER_VALIDATE_INT);
     $_CONFIG['folderdefnum'] = ($folderdefnum ? $folderdefnum : 10);
 
-    $folderdeforder = filter_input(INPUT_POST, "folderdeforder", FILTER_SANITIZE_SPECIAL_CHARS);
+    $folderdeforder = filter_input(INPUT_POST, "folderdeforder", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
     $_CONFIG['folderdeforder'] = $folderdeforder ? $folderdeforder : "date";
     
-    $default_dir_order = filter_input(INPUT_POST, "default_dir_order", FILTER_SANITIZE_SPECIAL_CHARS);
+    $default_dir_order = filter_input(INPUT_POST, "default_dir_order", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
     $_CONFIG['default_dir_order'] = $default_dir_order ? $default_dir_order : "asc";
 
     unset($_SESSION['sort_dir_order']);
@@ -292,7 +299,7 @@ if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] == 'POST') {
     */
     $email_logo_new = false;
 
-    $remove_email_logo = filter_input(INPUT_POST, "remove_email_logo", FILTER_SANITIZE_SPECIAL_CHARS);
+    $remove_email_logo = filter_input(INPUT_POST, "remove_email_logo", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
     $email_logo_new = $remove_email_logo ? false : $setUp->getConfig('email_logo', false);
 
@@ -313,7 +320,7 @@ if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $_CONFIG['smtp_auth'] = isset($_POST['smtp_auth']);
 
-    $smtp_server = filter_input(INPUT_POST, 'smtp_server', FILTER_SANITIZE_SPECIAL_CHARS);
+    $smtp_server = filter_input(INPUT_POST, 'smtp_server', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
     $_CONFIG['smtp_server'] = $smtp_server ? $smtp_server : '';
 
     $port = filter_input(INPUT_POST, 'port', FILTER_VALIDATE_INT);
@@ -321,10 +328,10 @@ if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $_CONFIG['secure_conn'] = $_POST['secure_conn'];
 
-    $email_login = filter_input(INPUT_POST, 'email_login', FILTER_SANITIZE_SPECIAL_CHARS);
+    $email_login = filter_input(INPUT_POST, 'email_login', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
     $_CONFIG['email_login'] = $email_login;
 
-    $email_pass = filter_input(INPUT_POST, 'email_pass', FILTER_SANITIZE_SPECIAL_CHARS);
+    $email_pass = filter_input(INPUT_POST, 'email_pass', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
     if ($_CONFIG['smtp_enable'] == true && $_CONFIG['smtp_auth'] == true) {
         if (array_key_exists('email_pass', $_CONFIG)) {
@@ -357,8 +364,7 @@ if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] == 'POST') {
     $_CONFIG['debug_mode'] = isset($_POST['debug_mode']);
 
     // Save settings.
-    $con = '$_CONFIG = ';
-    if (false === (file_put_contents('config.php', "<?php\n\n $con".var_export($_CONFIG, true).";\n"))) {
+    if (!Utils::saveJson('config.json', $_CONFIG)) {
         Utils::setError('Error saving config file');
     } else {
         Utils::setSuccess($setUp->getString('settings_updated'));

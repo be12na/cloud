@@ -26,6 +26,8 @@ require_once dirname(dirname(__FILE__)).'/class/class.location.php';
 $setUp = new SetUp();
 $gateKeeper = new GateKeeper();
 
+header('Content-Type: application/json');
+
 $response = array();
 $totaldata = array();
 $response['recordsTotal'] = 0;
@@ -33,14 +35,14 @@ $response['recordsFiltered'] = 0;
 
 $request = $_GET;
 
-$getdir = isset($request['dir_b64']) ? filter_var($request['dir_b64'], FILTER_SANITIZE_SPECIAL_CHARS) : false;
+$getdir = isset($request['dir_b64']) ? filter_var($request['dir_b64'], FILTER_SANITIZE_FULL_SPECIAL_CHARS) : false;
 $locdir = $getdir ? '../../'.base64_decode($getdir) : false;
 
 $location = new Location($locdir);
 
 if ($gateKeeper->isAccessAllowed() && $gateKeeper->isAllowed('viewdirs_enable')) {
     $fullpath = $location->getFullPath();
-    $searchvalue = filter_var($request['search']['value'], FILTER_SANITIZE_SPECIAL_CHARS);
+    $searchvalue = isset($request['search']['value']) ? filter_var($request['search']['value'], FILTER_SANITIZE_FULL_SPECIAL_CHARS) : '';
 
     include_once dirname(dirname(__FILE__)).'/class/class.dir.php';
     include_once dirname(dirname(__FILE__)).'/class/class.dirs.php';
@@ -59,7 +61,7 @@ if ($gateKeeper->isAccessAllowed() && $gateKeeper->isAllowed('viewdirs_enable'))
     $start = isset($request['start']) ? intval($request['start']) : 0;
     $sortby = isset($request['order'][0]['column']) ? intval($request['order'][0]['column']) : 1;
     $orderdir = isset($request['order'][0]['dir']) ? $request['order'][0]['dir'] : 'desc';
-    $search = strlen($searchvalue) > 1 ? $searchvalue : false;
+    $search = strlen((string)$searchvalue) > 1 ? $searchvalue : false;
     // Search item
     if ($search) {
         $search = Utils::unaccent($search);

@@ -1,15 +1,16 @@
 <?php
 
- $_CONFIG = [
-  // ================== STATUS INSTALASI ==================
-  'firstrun' => true, // Akan berubah jadi false otomatis setelah instalasi
-  'salt' => '',       // Akan diisi otomatis oleh sistem
-  'script_url' => '', // Akan diisi otomatis oleh sistem
+ $_CONFIG = array (
+  // STATUS INSTALASI
+  // Ubah menjadi false jika aplikasi sudah siap digunakan di Docker
+  'firstrun' => true, 
+  'salt' => '', // Pastikan ini terisi otomatis saat instalasi pertama
+  'script_url' => '',
   'session_name' => '',
 
-  // ================== TAMPILAN & UMUM ==================
+  // TAMPILAN
   'align_logo' => 'center',
-  'appname' => 'VFM 4',
+  'appname' => 'VFM 4', // Ganti dengan nama aplikasi Anda
   'audio_notification' => false,
   'banner_width' => 'wide',
   'basedir' => '',
@@ -18,11 +19,13 @@
   'copy_enable' => false,
   'credits' => '',
   'credits_link' => '',
-  'debug_mode' => false,
-  'debug_smtp' => false,
-  'default_timezone' => 'UTC',
   
-  // ================== MANAJEMEN FILE ==================
+  // DEBUG & LOG
+  'debug_mode' => false, // Pastikan FALSE di production
+  'debug_smtp' => false,
+  
+  // PENGATURAN UMUM
+  'default_timezone' => 'UTC', // Sesuaikan dengan zona waktu server (misal: Asia/Jakarta)
   'default_file_order' => 'desc',
   'default_dir_order' => 'asc',
   'delete_dir_enable' => true,
@@ -33,14 +36,14 @@
   'download_enable_guest' => false,
   'download_enable_user' => true,
   
-  // ================== EMAIL ==================
+  // EMAIL
   'email_from' => '',
   'email_login' => '',
   'email_pass' => '',
   'email_logo' => false,
   'enable_prettylinks' => false,
   
-  // ================== LIST & PAGINATION ==================
+  // TAMPILAN FILE
   'filedefnum' => 10,
   'filedeforder' => 'date',
   'fixed_navbar' => false,
@@ -50,18 +53,20 @@
   'header_padding' => 0,
   'header_position' => 'below',
   'hide_logo' => false,
-  
-  // ================== KEAMANAN & FILE TERSEMBUNYI ==================
-  'hidden_dirs' => ['admin'],
-  'hidden_files' => [
-    'index.php',
-    'index.php~',
-    '.htaccess',
-    '.htpasswd',
-    '.ftpquota',
-    '.user.ini',  // Tambahan: konfigurasi PHP
-    '.env',       // Tambahan: file environment
-  ],
+  'hidden_dirs' => 
+  array (
+    0 => 'admin',
+  ),
+  'hidden_files' => 
+  array (
+    1 => 'index.php',
+    2 => 'index.php~',
+    3 => '.htaccess',
+    4 => '.htpasswd',
+    5 => '.ftpquota',
+    6 => '.user.ini', // Tambahan keamanan
+    7 => '.env',      // Tambahan keamanan
+  ),
   'hide_credits' => false,
   'inline_thumbs' => false,
   'lang' => 'en',
@@ -77,8 +82,6 @@
   'navbar_logo' => false,
   'newdir_enable' => true,
   'newdir_enable_user' => false,
-  
-  // ================== NOTIFIKASI ==================
   'notify_download' => false,
   'notify_login' => false,
   'notify_newfolder' => false,
@@ -90,8 +93,6 @@
   'port' => '',
   'preloader' => 'XMLHttpRequest',
   'progress_color' => '',
-  
-  // ================== REGISTRASI ==================
   'registration_enable' => false,
   'registration_lifetime' => '-1 day',
   'registration_role' => 'user',
@@ -99,7 +100,7 @@
   'registration_user_quota' => '',
   'rename_dir_enable' => true,
   'rename_enable' => true,
-  'require_login' => true,
+  'require_login' => true, // Sangat disarankan TRUE
   'secure_conn' => 'none',
   'secure_sharing' => false,
   'selectivext' => 'reject',
@@ -135,50 +136,83 @@
   'thumbnails' => true,
   'thumbnails_height' => 800,
   'thumbnails_width' => 760,
+  'video_thumbnails' => true,
+  'ffmpeg_path' => 'ffmpeg',
   'time_format' => 'd/m/Y - H:i',
   'txt_direction' => 'LTR',
-  
-  // ================== UPLOAD & BLACKLIST (KRITIS) ==================
   'upload_allow_type' => ['mp4'],
   'upload_email' => false,
   'upload_enable' => true,
   'upload_enable_user' => false,
   'upload_notification_enable' => false,
   
-  // DAFTAR HITAM DIPERKUAT UNTUK KEAMANAN
-  'upload_reject_extension' => [
-    // PHP & Server Side Scripts (Wajib Blokir)
-    'php', 'php3', 'php4', 'php5', 'php7', 'phtml', 'phar', 'pht', 'pg', 'inc',
-    // Script & Markup (Potensi XSS/Injection)
-    'html', 'htm', 'xhtml', 'shtml', 'svg', 'xml', 'js',
-    // Server Scripts
-    'jsp', 'asp', 'aspx', 'cfm', 'pl', 'py', 'sh', 'cgi',
-    // System & Config
-    'ini', 'htaccess', 'htpasswd', 'bat', 'cmd', 'exe', 'msi',
-  ],
+  // KEAMANAN: BLACKLIST EKSTENSI (OPTIMALKAN)
+  // Menambahkan varian PHP, Script, dan File Berbahaya lainnya
+  'upload_reject_extension' => 
+  array (
+    // PHP & Script Server Side
+    0 => 'php',
+    1 => 'php3',
+    2 => 'php4',
+    3 => 'php5',
+    4 => 'php7',
+    5 => 'phtml',
+    6 => 'phar',
+    7 => 'pht',
+    8 => 'pg',
+    9 => 'inc',
+    
+    // Script & Markup Berbahaya (XSS/Execution)
+    10 => 'html',
+    11 => 'htm',
+    12 => 'xhtml',
+    13 => 'shtml',
+    14 => 'svg',    // Berpotensi XSS
+    15 => 'xml',    // Berpotensi XXE
+    16 => 'js',     // JavaScript
+    17 => 'jsp',
+    18 => 'asp',
+    19 => 'aspx',
+    20 => 'cfm',
+    21 => 'pl',
+    22 => 'py',
+    23 => 'sh',
+    24 => 'cgi',
+    
+    // Konfigurasi & System
+    25 => 'ini',
+    26 => 'htaccess',
+    27 => 'htpasswd',
+    28 => 'bat',
+    29 => 'cmd',
+    30 => 'exe',
+    31 => 'msi',
+  ),
   
-  // ================== RECAPTCHA ==================
+  // RECAPTCHA
   'recaptcha' => false,
   'recaptcha_invisible' => true,
   'recaptcha_site' => '',
   'recaptcha_secret' => '',
   
-  // ================== HAK AKSES ADMIN ==================
+  // HAK AKSES ADMIN
   'superadmin_can_appearance' => true,
   'superadmin_can_preferences' => false,
   'superadmin_can_users' => true,
   'superadmin_can_translations' => false,
   'superadmin_can_statistics' => true,
   
-  // ================== KEAMANAN IP ==================
+  // KEAMANAN IP
   'ip_blacklist' => false,
   'ip_whitelist' => false,
   'ip_list' => 'reject',
   'ip_redirect' => false,
+  
+  // REMOTE UPLOAD
   'remote_uploader' => false,
   'remote_extensions' => ['mp4'],
   
-  // ================== HAK AKSES ROLE ==================
+  // HAK AKSES ROLE
   'view_enable_guest' => true,
   'view_enable_user' => true,
   'viewdirs_enable_guest' => false,
@@ -204,10 +238,10 @@
   'delete_dir_enable_contributor' => false,
   'rename_dir_enable_contributor' => false,
   
-  // ================== TEMA ==================
+  // TEMA
   '--color-primary' => 'hsl(216, 98%, 52%)',
   '--color-dark' => 'hsl(210, 11%, 15%)',
   '--color-light' => 'hsl(210, 16%, 98%)',
   'overwrite_files' => 'no',
   'dark_header' => true,
-];
+);

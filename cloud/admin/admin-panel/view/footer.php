@@ -5,7 +5,7 @@
         </a> &copy; <?php echo date('Y'); ?>
     </div>
     <div class="ms-auto">
-        <a href="https://bikinweeb.com" target="_blank" title="Current version" style="line-height: 1;">
+        <a href="https://depot.biz.id" target="_blank" title="Current version" style="line-height: 1;">
             <small><?php echo VFM_VERSION; ?></small>
         </a>
     </div>

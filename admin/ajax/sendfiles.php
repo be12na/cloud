@@ -29,10 +29,10 @@ if ($setfrom === null || $setfrom === '' || $setfrom === false) {
 
 $from = filter_input(INPUT_POST, "mitt", FILTER_VALIDATE_EMAIL);
 $dest = filter_input(INPUT_POST, "dest", FILTER_VALIDATE_EMAIL);
-$link = filter_input(INPUT_POST, "sharelink", FILTER_SANITIZE_SPECIAL_CHARS);
-$attachments = explode(",", filter_input(INPUT_POST, "attach", FILTER_SANITIZE_SPECIAL_CHARS));
-$text_message = filter_input(INPUT_POST, "message", FILTER_SANITIZE_SPECIAL_CHARS);
-$passlink = filter_input(INPUT_POST, "passlink", FILTER_SANITIZE_SPECIAL_CHARS);
+$link = filter_input(INPUT_POST, "sharelink", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+$attachments = explode(",", filter_input(INPUT_POST, "attach", FILTER_SANITIZE_FULL_SPECIAL_CHARS));
+$text_message = filter_input(INPUT_POST, "message", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+$passlink = filter_input(INPUT_POST, "passlink", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 // $link = htmlspecialchars($_POST['sharelink']);
 // $attachments = explode(",", htmlspecialchars($_POST['attach']));
 // $text_message = htmlspecialchars($_POST['message']);

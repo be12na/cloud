@@ -12,6 +12,7 @@ if (!isset($_SERVER['HTTP_X_REQUESTED_WITH'])
 ) {
     exit;
 }
+require_once dirname(dirname(__FILE__)).'/class/class.utils.php';
 require_once dirname(dirname(__FILE__)).'/class/class.setup.php';
 
 $setUp = new SetUp();
@@ -21,11 +22,12 @@ if ($setUp->getConfig('debug_mode') === true) {
     ini_set('display_errors', 1);
 }
 @set_time_limit(0);
-require_once dirname(dirname(__FILE__)).'/class/class.utils.php';
 require_once dirname(dirname(__FILE__)).'/class/class.gatekeeper.php';
 require_once dirname(dirname(__FILE__)).'/class/class.location.php';
 
 $gateKeeper = new GateKeeper();
+
+header('Content-Type: application/json');
 
 $response = array();
 $totaldata = array();
@@ -34,14 +36,14 @@ $response['recordsFiltered'] = 0;
 
 $request = $_GET;
 
-$getdir = isset($request['dir_b64']) ? filter_var($request['dir_b64'], FILTER_SANITIZE_SPECIAL_CHARS) : false;
+$getdir = isset($request['dir_b64']) ? filter_var($request['dir_b64'], FILTER_SANITIZE_FULL_SPECIAL_CHARS) : false;
 $locdir = $getdir ? '../../'.base64_decode($getdir) : false;
 
 $location = new Location($locdir);
 
 if ($gateKeeper->isAccessAllowed() && $location->editAllowed('../../') && $gateKeeper->isAllowed('view_enable')) {
     $fullpath = $location->getFullPath();
-    $searchvalue = filter_var($request['search']['value'], FILTER_SANITIZE_SPECIAL_CHARS);
+    $searchvalue = isset($request['search']['value']) ? filter_var($request['search']['value'], FILTER_SANITIZE_FULL_SPECIAL_CHARS) : '';
 
     include_once dirname(dirname(__FILE__)).'/class/class.imageserver.php';
     include_once dirname(dirname(__FILE__)).'/icons/vfm-icons.php';
@@ -58,7 +60,7 @@ if ($gateKeeper->isAccessAllowed() && $location->editAllowed('../../') && $gateK
     $start = isset($request['start']) ? intval($request['start']) : 0;
     $sortby = isset($request['order'][0]['column']) ? intval($request['order'][0]['column']) : 4;
     $orderdir = isset($request['order'][0]['dir']) ? $request['order'][0]['dir'] : 'desc';
-    $search = strlen($searchvalue) > 1 ? $searchvalue : false;
+    $search = strlen((string)$searchvalue) > 1 ? $searchvalue : false;
 
     $response['recordsTotal'] = count($getfiles);
 
@@ -113,6 +115,9 @@ if ($gateKeeper->isAccessAllowed() && $location->editAllowed('../../') && $gateK
         $response['recordsFiltered'] = count($getfiles);
         $counter = 0;
         $totcounter = 0;
+        $hasimage = false;
+        $hasvideo = false;
+        $hasaudio = false;
 
         foreach ($getfiles as $key => $file) {
             $totcounter++;
@@ -183,9 +188,13 @@ if ($gateKeeper->isAccessAllowed() && $location->editAllowed('../../') && $gateK
                     $imgdata .= ' data-type="video"';
                 }
 
-                if ($file->isValidForThumb()) {
+                if ($file->isValidForThumb() || $file->isValidForVideoThumb()) {
                     $hasimage = true;
-                    $imgdata .= ' data-type="image"';
+                    if (!$file->isValidForVideo()) {
+                        $imgdata .= ' data-type="image"';
+                    }
+                } elseif ($file->isVideo() && $setUp->getConfig('inline_thumbs') == true) {
+                    $hasimage = true;
                 }
 
                 $data['check'] = '<div class="checkbox checkbox-primary checkbox-circle"><label class="round-btn"><input type="checkbox" name="selecta" class="selecta" value="'.$thislink.'"></label></div>';
@@ -216,8 +225,15 @@ if ($gateKeeper->isAccessAllowed() && $location->editAllowed('../../') && $gateK
                     if ($gateKeeper->isAllowed('download_enable')) {
                         $data['icon'] .= '<a href="'.$downlink.'" '.$imgdata.' '.$linktarget.' '.$itemclass.'>';
                     }
-                    if ($setUp->getConfig('inline_thumbs') == true && $file->isValidForThumb()) {
+                    if ($setUp->getConfig('inline_thumbs') == true && ($file->isValidForThumb() || $file->isValidForVideoThumb())) {
                         $data['icon'] .= '<div class="icon-placeholder"><img src="'.$imageServer->showThumbnail(base64_decode($thislink), true).'"></div>';
+                    } elseif ($setUp->getConfig('inline_thumbs') == true && $file->isVideo()) {
+                        // Client-side video thumbnail via HTML5 video element
+                        $videoSrc = $location->getDir(false, true, false, 0).$file->getNameEncoded();
+                        $data['icon'] .= '<div class="icon-placeholder vfm-video-thumb-wrap">';
+                        $data['icon'] .= '<video src="'.$videoSrc.'#t=1" preload="metadata" muted playsinline class="vfm-video-thumb"></video>';
+                        $data['icon'] .= '<div class="vfm-video-thumb-play"><i class="bi bi-play-fill"></i></div>';
+                        $data['icon'] .= '</div>';
                     } else {
                         $data['icon'] .= '<div class="icon-placeholder"><div class="cta"><i class="bi bi-'.$thisicon.'"></i></div></div>';
                     }
@@ -225,7 +241,7 @@ if ($gateKeeper->isAccessAllowed() && $location->editAllowed('../../') && $gateK
 
                 $data['icon'] .= '<div class="hover end-0"><div><div class="round-btn">';
 
-                if ($file->isValidForThumb()) {
+                if ($file->isValidForThumb() || $file->isValidForVideoThumb() || ($file->isVideo() && $setUp->getConfig('inline_thumbs') == true)) {
                     $data['icon'] .= '<i class="bi bi-zoom-in"></i>';
                 } elseif ($file->isValidForVideo()) {
                     $data['icon'] .= '<i class="bi bi-play"></i>';
@@ -292,7 +308,7 @@ if ($gateKeeper->isAccessAllowed() && $location->editAllowed('../../') && $gateK
 
                 if ($gateKeeper->isAllowed('download_enable')) {
                     $data['file_name'] .= '<span class="hover end-0">';
-                    if ($file->isValidForThumb()) {
+                    if ($file->isValidForThumb() || $file->isValidForVideoThumb() || ($file->isVideo() && $setUp->getConfig('inline_thumbs') == true)) {
                         $data['file_name'] .= '<i class="bi bi-zoom-in"></i>';
                     } elseif (strtolower($ext) == 'pdf') {
                         $data['file_name'] .= '<i class="bi bi-chevron-right"></i>';

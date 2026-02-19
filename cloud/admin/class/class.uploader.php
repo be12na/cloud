@@ -24,7 +24,7 @@ if (!class_exists('Uploader', false)) {
          */
         public static function veryFile($fullfilepath, $filesize, $remote = false)
         {
-            global $setUp;
+            $setUp = SetUp::getInstance();
             $filepathinfo = Utils::mbPathinfo($fullfilepath);
             $filename = $filepathinfo['filename'];
             $basename = $filepathinfo['basename'];
@@ -99,7 +99,7 @@ if (!class_exists('Uploader', false)) {
          */
         public function setupFilename($resumableFilename)
         {
-            global $setUp;
+            $setUp = SetUp::getInstance();
             $extension = Utils::getFileExtension($resumableFilename);
             $filepathinfo = Utils::mbPathinfo($resumableFilename);
             $basename = Utils::normalizeStr(Utils::checkMagicQuotes($filepathinfo['filename']));
@@ -164,7 +164,7 @@ if (!class_exists('Uploader', false)) {
                 Actions::deleteDir($temp_dir);
                 return false;
             }
-            global $setUp;
+            $setUp = SetUp::getInstance();
             $upload_dir = str_replace('\\', '', $destination);
             $extension = Utils::getFileExtension($finalFilename);
             $finalfile = Uploader::safeExtension($finalFilename, $extension);
@@ -256,7 +256,7 @@ if (!class_exists('Uploader', false)) {
          */
         public function getRemoteSize($url)
         {
-            global $setUp;
+            $setUp = SetUp::getInstance();
             $totalsize = false;
             $avoid = false;
          
@@ -269,7 +269,7 @@ if (!class_exists('Uploader', false)) {
                         CURLOPT_RETURNTRANSFER => true,
                         CURLOPT_HEADER => true,
                         CURLOPT_NOBODY => true,
-                        CURLOPT_SSL_VERIFYPEER => false,
+                        CURLOPT_SSL_VERIFYPEER => true,
                         CURLOPT_FOLLOWLOCATION => false,
                     )
                 );
@@ -354,7 +354,7 @@ if (!class_exists('Uploader', false)) {
          */
         public static function uploadFile($location, $thename, $tempname, $size)
         {
-            global $setUp;
+            $setUp = SetUp::getInstance();
 
             $extension = Utils::getFileExtension($thename);
             $filepathinfo = Utils::mbPathinfo($thename);

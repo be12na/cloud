@@ -15,6 +15,17 @@ if (!class_exists('GateKeeper', false)) {
 
         private $_USERS;
         private $_newusers;
+        private static $instance = null;
+
+        /**
+         * Get singleton instance
+         *
+         * @return GateKeeper
+         */
+        public static function getInstance()
+        {
+            return self::$instance;
+        }
 
         /**
          * Set session and language
@@ -23,6 +34,7 @@ if (!class_exists('GateKeeper', false)) {
          */
         public function __construct()
         {
+            self::$instance = $this;
             $this->_USERS = $this->loadUsers();
             $this->_newusers = $this->loadUsersNew();
         }
@@ -36,8 +48,8 @@ if (!class_exists('GateKeeper', false)) {
          */
         public function init($relative = 'admin/', $callfrom = '')
         {
-            global $updater;
-            global $setUp;
+            $updater = new Updater();
+            $setUp = SetUp::getInstance();
 
             if (isset($_GET['logout'])) {
                 $this->logOut($relative);
@@ -48,11 +60,16 @@ if (!class_exists('GateKeeper', false)) {
             }
 
             // $postusername = isset($_POST['user_name']) ? str_replace(['"',"'"], "", $_POST['user_name']) : false;
-            $postusername = filter_input(INPUT_POST, "user_name", FILTER_SANITIZE_SPECIAL_CHARS);
+            $postusername = filter_input(INPUT_POST, "user_name", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
             $postuserpass = isset($_POST['user_pass']) ? $_POST['user_pass'] : false;
-            $rememberme = filter_input(INPUT_POST, 'vfm_remember', FILTER_SANITIZE_SPECIAL_CHARS);
+            $rememberme = filter_input(INPUT_POST, 'vfm_remember', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
             if ($postusername && $postuserpass) {
+                if (!Utils::verifyCsrfToken()) {
+                    Utils::setWarning('Invalid form submission');
+                    header('location:?dir=');
+                    exit;
+                }
                 if (Utils::checkCaptcha('show_captcha'.$callfrom)) {
                     if ($this->isUser($postusername, $postuserpass)) {
                         if ($rememberme === 'yes') {
@@ -126,7 +143,7 @@ if (!class_exists('GateKeeper', false)) {
          */
         public function getUserSpace()
         {
-            global $setUp;
+            $setUp = SetUp::getInstance();
             if ($this->getUserInfo('dir') !== null
                 && $this->getUserInfo('quota') !== null
             ) {
@@ -156,25 +173,15 @@ if (!class_exists('GateKeeper', false)) {
          */
         public function isUser($userName, $userPass)
         {
-            global $setUp;
+            $setUp = SetUp::getInstance();
             $salt = $setUp->getConfig('salt');
             $passo = $salt.urlencode($userPass);
             $users = $this->getUsers();
 
-            // foreach ($users as $user) {
-            //     if (isset($user['sensitive']) && $user['sensitive'] === $userName) {
-            //         if (crypt($passo, $user['pass']) == $user['pass']) {
-            //             $_SESSION['vfm_user_name_new'] = $user['name'];
-            //             Utils::setWarning('<span>'.$setUp->getString('your_new_username_is').' <strong>'.$user['name'].'</strong></span>');
-            //             return true;
-            //         }
-            //         break;
-            //     }
-            // }
             if ($users) {
                 foreach ($users as $user) {
                     if (strtolower($user['name']) === strtolower($userName)) {
-                        if (crypt($passo, $user['pass']) === $user['pass']) {
+                        if (Utils::verifyPassword($salt, $userPass, $user['pass'])) {
                             if (isset($user['disabled']) && $user['disabled'] === true) {
                                 Utils::setError($setUp->getString('account_disabled'));
                                 return false;
@@ -195,7 +202,7 @@ if (!class_exists('GateKeeper', false)) {
          */
         public static function isLoginRequired()
         {
-            global $setUp;
+            $setUp = SetUp::getInstance();
             if ($setUp->getConfig('require_login') == false) {
                 return false;
             }
@@ -209,12 +216,12 @@ if (!class_exists('GateKeeper', false)) {
          */
         public static function isUserLoggedIn()
         {
-            global $gateKeeper;
-            global $setUp;
+            $gateKeeper = GateKeeper::getInstance();
+            $setUp = SetUp::getInstance();
 
             if (isset($_SESSION['vfm_user_name'])
                 && isset($_SESSION['vfm_logged_in'])
-                && $_SESSION['vfm_logged_in'] == 1
+                && $_SESSION['vfm_logged_in'] === 1
             ) {
                 if ($gateKeeper->getUserInfo('disabled') === true) {
                     Utils::setError($setUp->getString('account_disabled'));
@@ -238,7 +245,7 @@ if (!class_exists('GateKeeper', false)) {
          */
         public function isAllowed($action)
         {
-            global $setUp;
+            $setUp = SetUp::getInstance();
             if ($action && $this->isAccessAllowed()) {
                 $role = $this->getUserInfo('role');
                 $role = $role == null ? 'guest' : $role;
@@ -287,11 +294,11 @@ if (!class_exists('GateKeeper', false)) {
          */
         public function getUserInfo($info)
         {
-            if (isset($_SESSION['vfm_user_name']) && strlen($_SESSION['vfm_user_name']) > 0) {
+            if (isset($_SESSION['vfm_user_name']) && strlen((string)$_SESSION['vfm_user_name']) > 0) {
                 $username = $_SESSION['vfm_user_name'];
                 $curruser = $this->getCurrentUser($username);
 
-                if (isset($curruser[$info]) && strlen($curruser[$info]) > 0) {
+                if (isset($curruser[$info]) && strlen((string)$curruser[$info]) > 0) {
                     return $curruser[$info];
                 }
             }
@@ -309,7 +316,7 @@ if (!class_exists('GateKeeper', false)) {
          */
         public static function getAvatar($username, $adminarea = 'admin/', $size = '25')
         {
-            global $setUp;
+            $setUp = SetUp::getInstance();
             $avaimg = md5($username).'.png';
             
             if (!file_exists($adminarea.'_content/avatars/'.$avaimg)) {
@@ -366,10 +373,22 @@ if (!class_exists('GateKeeper', false)) {
          */
         public function loadUsers()
         {
+            $jsonpath = dirname(dirname(__FILE__)).'/_content/users/users.json';
+            $phppath = dirname(dirname(__FILE__)).'/_content/users/users.php';
+
+            // Prefer JSON if it exists
+            if (file_exists($jsonpath)) {
+                return Utils::loadJson($jsonpath, false);
+            }
+
+            // Fallback to legacy PHP file and migrate
             $_USERS = false;
-            $filepath = dirname(dirname(__FILE__)).'/_content/users/users.php';
-            if (file_exists($filepath)) {
-                include $filepath;
+            if (file_exists($phppath)) {
+                include $phppath;
+                // Auto-migrate to JSON
+                if ($_USERS) {
+                    Utils::saveJson($jsonpath, $_USERS);
+                }
             }
             return $_USERS;
         }
@@ -391,10 +410,21 @@ if (!class_exists('GateKeeper', false)) {
          */
         public function loadUsersNew()
         {
+            $jsonpath = dirname(dirname(__FILE__)).'/_content/users/users-new.json';
+            $phppath = dirname(dirname(__FILE__)).'/_content/users/users-new.php';
+
+            // Prefer JSON if it exists
+            if (file_exists($jsonpath)) {
+                return Utils::loadJson($jsonpath, false);
+            }
+
+            // Fallback to legacy PHP file and migrate
             $newusers = false;
-            $filepath = dirname(dirname(__FILE__)).'/_content/users/users-new.php';
-            if (file_exists($filepath)) {
-                include $filepath;
+            if (file_exists($phppath)) {
+                include $phppath;
+                if ($newusers) {
+                    Utils::saveJson($jsonpath, $newusers);
+                }
             }
             return $newusers;
         }
@@ -441,7 +471,7 @@ if (!class_exists('GateKeeper', false)) {
          */
         public function canSuperAdmin($permission)
         {
-            global $setUp;
+            $setUp = SetUp::getInstance();
             if ($this->isSuperAdmin()) {
                 if ($this->isMasterAdmin()) {
                     return true;
@@ -475,7 +505,7 @@ if (!class_exists('GateKeeper', false)) {
          */
         public static function setCookie($postusername = false)
         {
-            global $setUp;
+            $setUp = SetUp::getInstance();
             $_REMEMBER = GateKeeper::getRemember();
 
             $rewrite = false;
@@ -488,18 +518,16 @@ if (!class_exists('GateKeeper', false)) {
                 setcookie(
                     'rm',
                     $rmsha,
-                    // ['expires' => $expires, 'httponly' => true]
-                    ['expires' => $expires, 'httponly' => true, 'samesite' => 'strict']
+                    ['expires' => $expires, 'httponly' => true, 'samesite' => 'strict', 'secure' => isset($_SERVER['HTTPS'])]
                 );
                 setcookie(
                     'vfm_user_name',
                     $postusername,
-                    // ['expires' => $expires, 'httponly' => true]
-                    ['expires' => $expires, 'httponly' => true, 'samesite' => 'strict']
+                    ['expires' => $expires, 'httponly' => true, 'samesite' => 'strict', 'secure' => isset($_SERVER['HTTPS'])]
                 );
             } else {
-                setcookie('rm', $rmsha, $expires);
-                setcookie('vfm_user_name', $postusername, $expires);
+                setcookie('rm', $rmsha, $expires, '/', '', isset($_SERVER['HTTPS']), true);
+                setcookie('vfm_user_name', $postusername, $expires, '/', '', isset($_SERVER['HTTPS']), true);
             }
 
             if (array_key_exists($postusername, $_REMEMBER)
@@ -512,8 +540,7 @@ if (!class_exists('GateKeeper', false)) {
                 || $rewrite == true
             ) {
                 $_REMEMBER[$postusername] = $rmshaved;
-                $rmb = '$_REMEMBER = ';
-                if (false == (file_put_contents('admin/_content/users/remember.php', "<?php\n\n $rmb".var_export($_REMEMBER, true).";\n"))) {
+                if (!Utils::saveJson('admin/_content/users/remember.json', $_REMEMBER)) {
                     Utils::setError('error setting your remember key');
                     return false;
                 }
@@ -533,7 +560,7 @@ if (!class_exists('GateKeeper', false)) {
             // global $_REMEMBER;
             $_REMEMBER = GateKeeper::getRemember();
 
-            $expires = time()+ (60*60*24*365);
+            $expires = time() - 3600; // Set to past to actually delete the cookie
 
             if (PHP_VERSION_ID >= 70300) {
                 setcookie(
@@ -551,9 +578,7 @@ if (!class_exists('GateKeeper', false)) {
                 if (array_key_exists($postusername, $_REMEMBER)) {
                     unset($_REMEMBER[$postusername]);
                 
-                    $rmb = '$_REMEMBER = ';
-                    if (false == (file_put_contents($path.'_content/users/remember.php', "<?php\n\n $rmb".var_export($_REMEMBER, true).";\n"))
-                    ) {
+                    if (!Utils::saveJson($path.'_content/users/remember.json', $_REMEMBER)) {
                         Utils::setError('error resetting remember key');
                         return false;
                     }
@@ -583,7 +608,24 @@ if (!class_exists('GateKeeper', false)) {
          */
         public static function getRemember()
         {
-            include dirname(dirname(__FILE__)).'/_content/users/remember.php';
+            $jsonpath = dirname(dirname(__FILE__)).'/_content/users/remember.json';
+            $phppath = dirname(dirname(__FILE__)).'/_content/users/remember.php';
+
+            // Prefer JSON
+            if (file_exists($jsonpath)) {
+                $data = Utils::loadJson($jsonpath, array());
+                return is_array($data) ? $data : array();
+            }
+
+            // Fallback to legacy PHP
+            $_REMEMBER = array();
+            if (file_exists($phppath)) {
+                include $phppath;
+                // Auto-migrate
+                if (!empty($_REMEMBER)) {
+                    Utils::saveJson($jsonpath, $_REMEMBER);
+                }
+            }
             return $_REMEMBER;
         }
 
@@ -607,7 +649,8 @@ if (!class_exists('GateKeeper', false)) {
                     $usedspace = $this->getUserSpace();
 
                     if ($usedspace !== false) {
-                        $userspace = $this->getUserInfo('quota')*1024*1024;
+                        $quota = $this->getUserInfo('quota');
+                        $userspace = ($quota !== null && $quota !== false ? (int)$quota : 0) * 1024 * 1024;
                         $_SESSION['vfm_user_used'] = $usedspace;
                         $_SESSION['vfm_user_space'] = $userspace;
                     } else {

@@ -20,11 +20,13 @@ require_once dirname(dirname(__FILE__)).'/class/class.search.php';
 $setUp = new SetUp();
 $gateKeeper = new GateKeeper();
 
-$searchkey = filter_input(INPUT_GET, 's', FILTER_SANITIZE_SPECIAL_CHARS);
+header('Content-Type: application/json');
+
+$searchkey = filter_input(INPUT_GET, 's', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
 $final = array();
 
-if (strlen($searchkey) > 1 && $gateKeeper->isAccessAllowed() && $setUp->getConfig('global_search') && $gateKeeper->isAllowed('viewdirs_enable')) {
+if (strlen((string)$searchkey) > 1 && $gateKeeper->isAccessAllowed() && $setUp->getConfig('global_search') && $gateKeeper->isAllowed('viewdirs_enable')) {
     $search = new Search();
 
     $startingdir = $setUp->getConfig('starting_dir');

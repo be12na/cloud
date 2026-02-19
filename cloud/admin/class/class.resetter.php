@@ -19,18 +19,18 @@ if (!class_exists('Resetter', false)) {
          */
         public function init()
         {
-            global $updater;
-            global $resetter;
+            $updater = new Updater();
+            $resetter = $this;
 
-            $resetpwd = filter_input(INPUT_POST, 'reset_pwd', FILTER_SANITIZE_SPECIAL_CHARS);
-            $resetconf = filter_input(INPUT_POST, 'reset_conf', FILTER_SANITIZE_SPECIAL_CHARS);
-            $userh = filter_input(INPUT_POST, 'userh', FILTER_SANITIZE_SPECIAL_CHARS);
-            $getrp = filter_input(INPUT_POST, 'getrp', FILTER_SANITIZE_SPECIAL_CHARS);
+            $resetpwd = filter_input(INPUT_POST, 'reset_pwd', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+            $resetconf = filter_input(INPUT_POST, 'reset_conf', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+            $userh = filter_input(INPUT_POST, 'userh', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+            $getrp = filter_input(INPUT_POST, 'getrp', FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
             if ($resetpwd && $resetconf && $userh && $getrp) {
                 if ($resetpwd == $resetconf && $resetter->checkTok($getrp, $userh) === true) {
                     $username = $resetter->getUserFromSha($userh);
-                    $new_users = $updater->updateUserPwd($username, $resetpwd, $new_users);
+                    $new_users = $updater->updateUserPwd($username, $resetpwd);
                     $updater->updateUserFile('password', false, $new_users);
                     $resetter->resetToken($resetter->getMailFromSha($userh));
                 }
@@ -46,7 +46,7 @@ if (!class_exists('Resetter', false)) {
          */
         public function getUserFromSha($usermailsha)
         {
-            global $gateKeeper;
+            $gateKeeper = GateKeeper::getInstance();
             $_USERS = $gateKeeper->getUsers();
 
             foreach ($_USERS as $value) {
@@ -54,6 +54,7 @@ if (!class_exists('Resetter', false)) {
                     return $value['name'];
                 }
             }
+            return null;
         }
 
         /**
@@ -65,13 +66,14 @@ if (!class_exists('Resetter', false)) {
          */
         public function getMailFromSha($usermailsha)
         {
-            global $gateKeeper;
+            $gateKeeper = GateKeeper::getInstance();
             $_USERS = $gateKeeper->getUsers();
             foreach ($_USERS as $value) {
                 if (isset($value['email']) && sha1($value['email']) === $usermailsha) {
                     return $value['email'];
                 }
             }
+            return null;
         }
 
         /**
@@ -83,7 +85,7 @@ if (!class_exists('Resetter', false)) {
          */
         public function getUserFromMail($usermail)
         {
-            global $gateKeeper;
+            $gateKeeper = GateKeeper::getInstance();
             $_USERS = $gateKeeper->getUsers();
             foreach ($_USERS as $value) {
                 if (isset($value['email'])) {
@@ -92,6 +94,7 @@ if (!class_exists('Resetter', false)) {
                     }
                 }
             }
+            return null;
         }
 
         /**
@@ -106,8 +109,7 @@ if (!class_exists('Resetter', false)) {
             $_TOKENS = $this->getTokens();
             $tokens = $_TOKENS;
             unset($tokens[$usermail]);
-            $tkns = '$_TOKENS = ';
-            if (false == (file_put_contents('admin/_content/users/token.php', "<?php\n\n $tkns".var_export($tokens, true).";\n"))) {
+            if (!Utils::saveJson('admin/_content/users/token.json', $tokens)) {
                 Utils::setError('error, no token reset');
                 return false;
             }
@@ -123,8 +125,8 @@ if (!class_exists('Resetter', false)) {
          */
         public function setToken($usermail, $path = '')
         {
-            global $resetter;
-            global $setUp;
+            $resetter = $this;
+            $setUp = SetUp::getInstance();
 
             $_TOKENS = $this->getTokens();
             $tokens = $_TOKENS;
@@ -137,9 +139,8 @@ if (!class_exists('Resetter', false)) {
 
             $tokens[$usermail]['token'] = $token;
             $tokens[$usermail]['birth'] = $birth;
-            $tkns = '$_TOKENS = ';
 
-            if (false == (file_put_contents($path.'/_content/users/token.php', "<?php\n\n $tkns".var_export($tokens, true).";\n"))) {
+            if (!Utils::saveJson($path.'/_content/users/token.json', $tokens)) {
                 return false;
             } else {
                 $message = array();
@@ -183,8 +184,20 @@ if (!class_exists('Resetter', false)) {
          */
         public function getTokens()
         {
-            include dirname(dirname(__FILE__)).'/_content/users/token.php';
-            return $_TOKENS;
+            $jsonPath = dirname(dirname(__FILE__)).'/_content/users/token.json';
+            $phpPath = dirname(dirname(__FILE__)).'/_content/users/token.php';
+            // Try JSON first, fallback to legacy PHP with auto-migration
+            if (file_exists($jsonPath)) {
+                return Utils::loadJson($jsonPath, array());
+            }
+            if (file_exists($phpPath)) {
+                include $phpPath;
+                if (isset($_TOKENS) && is_array($_TOKENS)) {
+                    Utils::saveJson($jsonPath, $_TOKENS);
+                    return $_TOKENS;
+                }
+            }
+            return array();
         }
 
     }

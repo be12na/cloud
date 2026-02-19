@@ -24,9 +24,9 @@ $gateKeeper = new GateKeeper();
 $downloader = new Downloader();
 $actions = new Actions();
 
-$getcloud = filter_input(INPUT_POST, "setdel", FILTER_SANITIZE_SPECIAL_CHARS);
-$hash = filter_input(INPUT_POST, "h", FILTER_SANITIZE_SPECIAL_CHARS);
-$time = filter_input(INPUT_POST, "t", FILTER_SANITIZE_SPECIAL_CHARS);
+$getcloud = filter_input(INPUT_POST, "setdel", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+$hash = filter_input(INPUT_POST, "h", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+$time = filter_input(INPUT_POST, "t", FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
 // $getcloud = htmlspecialchars($_POST["setdel"]);
 // $hash = htmlspecialchars($_POST["h"]);
