@@ -140,7 +140,7 @@
   'ffmpeg_path' => 'ffmpeg',
   'time_format' => 'd/m/Y - H:i',
   'txt_direction' => 'LTR',
-  'upload_allow_type' => false,
+  'upload_allow_type' => ['mp4'],
   'upload_email' => false,
   'upload_enable' => true,
   'upload_enable_user' => false,
@@ -210,7 +210,7 @@
   
   // REMOTE UPLOAD
   'remote_uploader' => false,
-  'remote_extensions' => false,
+  'remote_extensions' => ['mp4'],
   
   // HAK AKSES ROLE
   'view_enable_guest' => true,

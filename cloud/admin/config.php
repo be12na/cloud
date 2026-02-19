@@ -141,7 +141,7 @@
   'txt_direction' => 'LTR',
   
   // ================== KEAMANAN UPLOAD (HARDENED) ==================
-  'upload_allow_type' => false,
+  'upload_allow_type' => ['mp4'],
   'upload_email' => '',
   'upload_enable' => true,
   'upload_enable_user' => false,
@@ -181,7 +181,7 @@
   'ip_list' => 'reject',
   'ip_redirect' => false,
   'remote_uploader' => false,
-  'remote_extensions' => false,
+  'remote_extensions' => ['mp4'],
   
   // ================== HAK AKSES ROLE ==================
   'view_enable_guest' => true,

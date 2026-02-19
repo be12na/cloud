@@ -92,6 +92,10 @@ function resumableJsSetup($android, $target, $placeholder, $singleprogress, $chu
 		simultaneousUploads 		: 3, // Simultaneous chunks
 		prioritizeFirstAndLastChunk	: true,
 		chunkSize 					: $chunksize, // get available size from php ini, see class.setup.php
+		fileType					: ['mp4'], // Only allow .mp4 video uploads
+		fileTypeErrorCallback		: function(file, errorCount) {
+			alert((file.fileName||file.name) + ' - Hanya file .mp4 yang diperbolehkan.');
+		},
 		// forceChunkSize 				: true, // Force all chunks to be less or equal than chunkSize. For some reason it fails the last chunk on some servers (Default: false)
 		// maxFiles 					: 1, // uncomment this to disable multiple uploading
 		// maxFileSize 					: 10*1024*1024, // uncomment this to limit the max file size (the example sets 10Mb)
