@@ -142,7 +142,7 @@
   'txt_direction' => 'LTR',
   
   // ================== UPLOAD & BLACKLIST (OPTIMIZED) ==================
-  'upload_allow_type' => ['mp4'],
+  'upload_allow_type' => ['mp4','png','jpg','jpeg','gif','webp','bmp','svg','tiff','tif','ico','heic','heif','avif'],
   'upload_email' => '',
   'upload_enable' => true,
   'upload_enable_user' => false,
