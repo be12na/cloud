@@ -36,7 +36,14 @@ if ($location->editAllowed() && ($gateKeeper->isAllowed('upload_enable') || $gat
                 <div id="upload_file" class="d-none">
                     <span class="upfile btn btn-primary btn-file">
                         <i class="bi bi-files"></i>
-                        <input name="userfile[]" type="file" class="upload_file" multiple accept=".mp4" />
+                        <input name="userfile[]" type="file" class="upload_file" multiple accept="<?php
+                            $allowed = $setUp->getConfig('upload_allow_type');
+                            if (is_array($allowed) && !empty($allowed)) {
+                                echo '.' . implode(',.', $allowed);
+                            } else {
+                                echo '*';
+                            }
+                        ?>" />
                     </span>
                 </div>
                 <input class="form-control" type="text" readonly name="fileToUpload" id="fileToUpload" placeholder="<?php echo $setUp->getString("browse"); ?>">

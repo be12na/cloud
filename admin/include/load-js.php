@@ -190,6 +190,7 @@ if ($location->editAllowed() && $gateKeeper->isAllowed('upload_enable')) {
         'singleprogress' => $singleprogress,
         'currentdir' => urlencode(base64_encode($location->getDir(true, false, false, 0))),
         'chunksize' => $setUp->getChunkSize(),
+        'allowedTypes' => is_array($setUp->getConfig('upload_allow_type')) ? $setUp->getConfig('upload_allow_type') : [],
     );
 }
 ?>

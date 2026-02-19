@@ -87,14 +87,17 @@ function resumableJsSetup($android, $target, $placeholder, $singleprogress, $chu
 	var ua = navigator.userAgent.toLowerCase();
 	var android = $android;
 
+	var allowedTypes = (typeof vfmvars.uploaders !== 'undefined' && vfmvars.uploaders.allowedTypes && vfmvars.uploaders.allowedTypes.length > 0) ? vfmvars.uploaders.allowedTypes : [];
+
 	var r = new Resumable({
 		target						: 'admin/ajax/chunk.php?loc='+$target,
 		simultaneousUploads 		: 3, // Simultaneous chunks
-		prioritizeFirstAndLastChunk	: true,
+		priorityFirstAndLastChunk	: true,
 		chunkSize 					: $chunksize, // get available size from php ini, see class.setup.php
-		fileType					: ['mp4'], // Only allow .mp4 video uploads
+		fileType					: allowedTypes.length > 0 ? allowedTypes : undefined,
 		fileTypeErrorCallback		: function(file, errorCount) {
-			alert((file.fileName||file.name) + ' - Hanya file .mp4 yang diperbolehkan.');
+			var exts = allowedTypes.length > 0 ? allowedTypes.map(function(e){ return '.' + e; }).join(', ') : '';
+			alert((file.fileName||file.name) + ' - Tipe file tidak diperbolehkan. Allowed: ' + exts);
 		},
 		// forceChunkSize 				: true, // Force all chunks to be less or equal than chunkSize. For some reason it fails the last chunk on some servers (Default: false)
 		// maxFiles 					: 1, // uncomment this to disable multiple uploading
