@@ -532,20 +532,49 @@ if (!class_exists('Updater', false)) {
 
             $insertion = array();
             if ($starting_dir !== './') {
-                $insertion[] = "<Files \"*.php\">";
-                $insertion[] = "SetHandler none";
-                $insertion[] = "SetHandler default-handler";
+                // Disable directory listing
+                $insertion[] = "Options -Indexes";
+                $insertion[] = "";
+                // Block PHP execution (compatible with mod_php AND PHP-FPM/FastCGI)
+                $insertion[] = "<FilesMatch \"\.ph(p[3457s]?|t|tml)$\">";
+                $insertion[] = "    <IfModule mod_authz_core.c>";
+                $insertion[] = "        Require all denied";
+                $insertion[] = "    </IfModule>";
+                $insertion[] = "    <IfModule !mod_authz_core.c>";
+                $insertion[] = "        Order deny,allow";
+                $insertion[] = "        Deny from all";
+                $insertion[] = "    </IfModule>";
+                $insertion[] = "</FilesMatch>";
+                $insertion[] = "";
+                // Disable CGI execution
                 $insertion[] = "Options -ExecCGI";
-                $insertion[] = "RemoveHandler .php";
-                $insertion[] = "</Files>";
+                $insertion[] = "";
+                // Disable PHP engine for mod_php variants
+                $insertion[] = "<IfModule mod_php.c>";
+                $insertion[] = "    <FilesMatch \"\.php$\">";
+                $insertion[] = "        php_flag engine off";
+                $insertion[] = "    </FilesMatch>";
+                $insertion[] = "</IfModule>";
+                $insertion[] = "<IfModule mod_php7.c>";
+                $insertion[] = "    <FilesMatch \"\.php$\">";
+                $insertion[] = "        php_flag engine off";
+                $insertion[] = "    </FilesMatch>";
+                $insertion[] = "</IfModule>";
                 $insertion[] = "<IfModule mod_php5.c>";
-                $insertion[] = "php_flag engine off";
+                $insertion[] = "    <FilesMatch \"\.php$\">";
+                $insertion[] = "        php_flag engine off";
+                $insertion[] = "    </FilesMatch>";
                 $insertion[] = "</IfModule>";
                 if (!$direct_links) {
-                    $insertion[] = "Order Deny,Allow";
-                    $insertion[] = "Deny from all";
+                    $insertion[] = "";
+                    $insertion[] = "<IfModule mod_authz_core.c>";
+                    $insertion[] = "    Require all denied";
+                    $insertion[] = "</IfModule>";
+                    $insertion[] = "<IfModule !mod_authz_core.c>";
+                    $insertion[] = "    Order Deny,Allow";
+                    $insertion[] = "    Deny from all";
+                    $insertion[] = "</IfModule>";
                 }
-                $insertion[] = "Options -Indexes";
             } else {
                 // if ($direct_links) {
                     $insertion[] = "<IfModule mod_rewrite.c>";

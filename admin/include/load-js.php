@@ -234,6 +234,49 @@ if ($debug_mode === true) {
     <script type="text/javascript" src="admin/js/vfm-bundle.min.js?v=<?php echo VFM_VERSION; ?>"></script>
     <?php
 }
+?>
+<script>
+// Video thumbnail generator via Canvas
+(function(){
+    function genVideoThumbs(){
+        var wraps=document.querySelectorAll('.vfm-video-thumb-wrap');
+        if(!wraps.length)return;
+        wraps.forEach(function(wrap){
+            if(wrap.dataset.thumbDone)return;
+            wrap.dataset.thumbDone='1';
+            var vid=wrap.querySelector('video.vfm-video-thumb');
+            if(!vid)return;
+            vid.addEventListener('loadeddata',function(){
+                try{
+                    var c=document.createElement('canvas');
+                    c.width=vid.videoWidth;
+                    c.height=vid.videoHeight;
+                    c.getContext('2d').drawImage(vid,0,0,c.width,c.height);
+                    var img=new Image();
+                    img.className='vfm-video-thumb-canvas';
+                    img.src=c.toDataURL('image/jpeg',0.7);
+                    img.onload=function(){
+                        vid.replaceWith(img);
+                    };
+                }catch(e){}
+            });
+            vid.addEventListener('error',function(){
+                // Keep the video element as fallback - browser will show poster or dark bg
+            });
+        });
+    }
+    // Run on DataTables draw and initial load
+    if(typeof jQuery!=='undefined'){
+        jQuery(document).ready(function(){
+            jQuery(document).on('draw.dt',function(){setTimeout(genVideoThumbs,100);});
+            setTimeout(genVideoThumbs,500);
+        });
+    }else{
+        document.addEventListener('DOMContentLoaded',function(){setTimeout(genVideoThumbs,500);});
+    }
+})();
+</script>
+<?php
 
 // Audio notification after upload
 if ($setUp->getConfig('audio_notification') && isset($_GET['response'])) { ?>

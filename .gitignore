@@ -1,0 +1,44 @@
+# ===========================================
+# VenoFileManager - Git Ignore
+# ===========================================
+
+# Sensitive config files (auto-generated)
+admin/config.json
+admin/_content/users/users.json
+admin/_content/users/remember.json
+admin/_content/share/*.json
+admin/_content/log/*.log
+admin/_content/log/*.json
+
+# Upload content (per-server)
+uploads/*
+!uploads/.htaccess
+!uploads/General/
+uploads/General/*
+
+# Generated thumbnails
+admin/_content/thumbs/*
+!admin/_content/thumbs/.gitkeep
+
+# Avatars (user data)
+admin/_content/avatars/*
+!admin/_content/avatars/.gitkeep
+
+# Temp files
+admin/tmp/*
+!admin/tmp/.gitkeep
+
+# OS files
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# Editor files
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# Duplicate dev folder (jangan deploy ke production)
+cloud/

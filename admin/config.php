@@ -2,9 +2,9 @@
 
  $_CONFIG = [
   // ================== STATUS INSTALASI ==================
-  'firstrun' => false,
+  'firstrun' => true,
   'salt' => 'f0d27f76e1d5af575a28709c1dfc8800', // Jangan ubah jika sudah ada data user
-  'script_url' => 'https://tes.berna.biz.id/',
+  'script_url' => '',
   'session_name' => 'vfm_2061581222',
 
   // ================== TAMPILAN & UMUM ==================
