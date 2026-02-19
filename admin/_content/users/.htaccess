@@ -1,0 +1,18 @@
+# Protect sensitive data files from direct HTTP access
+# Block all .json and .php data files in this directory
+
+# Deny access to JSON files (users, tokens, remember data)
+<FilesMatch "\.(json|php)$">
+    <IfModule mod_authz_core.c>
+        # Apache 2.4+
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        # Apache 2.2
+        Order deny,allow
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# Disable directory listing
+Options -Indexes

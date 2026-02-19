@@ -3,36 +3,32 @@
 # 1. Nonaktifkan Directory Listing (Keamanan)
 Options -Indexes
 
-# 2. Blokir eksekusi PHP secara menyeluruh
-<FilesMatch "\.php$">
-    # Matikan engine PHP untuk mod_php (PHP 5, 7, 8+)
-    <IfModule mod_php5.c>
-        php_flag engine off
+# 2. Blokir eksekusi PHP di folder uploads
+<FilesMatch "\.ph(p[3457s]?|t|tml)$">
+    # Untuk Apache 2.4+ (mod_authz_core)
+    <IfModule mod_authz_core.c>
+        Require all denied
     </IfModule>
-    <IfModule mod_php7.c>
-        php_flag engine off
+    # Untuk Apache 2.2
+    <IfModule !mod_authz_core.c>
+        Order deny,allow
+        Deny from all
     </IfModule>
-    <IfModule mod_php.c>
-        php_flag engine off
-    </IfModule>
-
-    # Paksa server memperlakukan file PHP sebagai file biasa (plain text)
-    # Ini berlaku untuk PHP-FPM, FastCGI, dan mod_php
-    SetHandler default-handler
-    
-    # Hapus handler khusus (safety net)
-    RemoveHandler .php
-    
-    # Nonaktifkan CGI
-    Options -ExecCGI
 </FilesMatch>
 
-# 3. Opsional: Tolak akses total ke file PHP (Paling Aman)
-# Jika diaktifkan, user tidak bisa mengakses file .php sama sekali (Error 403),
-# bahkan untuk melihat source code. Hapus komentar (#) di bawah jika ingin diterapkan.
-# <FilesMatch "\.php$">
-#     Order Allow,Deny
-#     Deny from all
-# </FilesMatch>
+# 3. Nonaktifkan CGI
+Options -ExecCGI
+
+# 4. Hapus handler PHP (kompatibel mod_php dan PHP-FPM)
+<IfModule mod_php.c>
+    <FilesMatch "\.php$">
+        php_flag engine off
+    </FilesMatch>
+</IfModule>
+<IfModule mod_php7.c>
+    <FilesMatch "\.php$">
+        php_flag engine off
+    </FilesMatch>
+</IfModule>
 
 # end VFM rules

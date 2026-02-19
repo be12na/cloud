@@ -1,0 +1,11 @@
+# Protect log files from direct access
+<FilesMatch "\.(json|php|log|txt)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order deny,allow
+        Deny from all
+    </IfModule>
+</FilesMatch>
+Options -Indexes

@@ -5,7 +5,21 @@
  */
 
 define('VFM_APP', true);
-require_once 'config.php';
+
+// Load config from JSON (preferred) or legacy PHP
+if (file_exists(__DIR__.'/config.json')) {
+    $_CONFIG = json_decode(file_get_contents(__DIR__.'/config.json'), true);
+} elseif (file_exists(__DIR__.'/config.php')) {
+    require_once __DIR__.'/config.php';
+} else {
+    // First run - copy master config
+    if (file_exists(__DIR__.'/config-master.php')) {
+        copy(__DIR__.'/config-master.php', __DIR__.'/config.php');
+        require_once __DIR__.'/config.php';
+    } else {
+        exit('Config file not found');
+    }
+}
 
 // Konfigurasi Error Reporting
 if ($_CONFIG['debug_mode'] === true) {

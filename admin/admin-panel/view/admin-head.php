@@ -8,7 +8,14 @@ if (!defined('VFM_APP')) {
     return;
 }
 
-require_once 'config.php';
+// Load config from JSON (preferred) or legacy PHP
+if (file_exists('config.json')) {
+    $_CONFIG = json_decode(file_get_contents('config.json'), true);
+} elseif (file_exists('config.php')) {
+    require_once 'config.php';
+} else {
+    exit('Config file not found');
+}
 
 if ($_CONFIG['debug_mode'] === true) {
     error_reporting(E_ALL);
@@ -21,7 +28,12 @@ if ($_CONFIG['firstrun'] === true) {
     exit;
 }
 
-require_once 'translations/en.php';
+// Load base translations from JSON or PHP
+if (file_exists('translations/en.json')) {
+    $_TRANSLATIONS = json_decode(file_get_contents('translations/en.json'), true);
+} elseif (file_exists('translations/en.php')) {
+    require_once 'translations/en.php';
+}
 require_once 'class.php';
 require_once 'class/class.admin.php';
 
@@ -54,13 +66,21 @@ $editlang = ($thenewlang ? $thenewlang : $thelang);
 global $_TRANSLATIONSEDIT;
 
 if ($posteditlang) {
-    include 'translations/'.$editlang.'.php';
-    $_TRANSLATIONSEDIT = $_TRANSLATIONS;
+    if (file_exists('translations/'.$editlang.'.json')) {
+        $_TRANSLATIONSEDIT = json_decode(file_get_contents('translations/'.$editlang.'.json'), true);
+    } else {
+        include 'translations/'.$editlang.'.php';
+        $_TRANSLATIONSEDIT = $_TRANSLATIONS;
+    }
 } else {
     $_TRANSLATIONSEDIT = $baselang;
 }
 $lang = $setUp->lang;
-require 'translations/'.$lang.'.php';
+if (file_exists('translations/'.$lang.'.json')) {
+    $_TRANSLATIONS = json_decode(file_get_contents('translations/'.$lang.'.json'), true);
+} else {
+    require 'translations/'.$lang.'.php';
+}
 
 global $translations;
 $translations = $admin->getLanguages();
