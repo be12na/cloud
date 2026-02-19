@@ -53,11 +53,6 @@ if ($gateKeeper->isUserLoggedIn()) {
     }
     if ($gateKeeper->isSuperAdmin()) { ?>
     <li class="nav-item">
-        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#cloudSettingsModal">
-            <i class="bi bi-cloud-fill"></i> Cloud Settings
-        </a>
-    </li>
-    <li class="nav-item">
         <a class="nav-link" href="<?php echo $setUp->getConfig("script_url"); ?>admin/">
             <i class="bi bi-sliders"></i> <?php echo $setUp->getString("admin"); ?>
         </a>
@@ -193,6 +188,13 @@ if ($gateKeeper->isUserLoggedIn() && $setUp->getConfig("show_usermenu") == true)
                     <?php echo $setUp->getString("avatar"); ?>
                 </button>
               </li>
+              <?php if ($gateKeeper->isSuperAdmin()) { ?>
+              <li role="presentation" class="nav-item">
+                <button class="nav-link" data-bs-target="#cloudsettings" aria-controls="cloudsettings" role="tab" data-bs-toggle="pill">
+                    <i class="bi bi-cloud-fill"></i> Cloud Settings
+                </button>
+              </li>
+              <?php } ?>
             </ul>
 
             <form role="form" method="post" id="usrForm" autocomplete="off" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING']);?>">
@@ -304,6 +306,7 @@ if ($gateKeeper->isUserLoggedIn() && $setUp->getConfig("show_usermenu") == true)
     } ?>
             </div><!-- tab-content -->
 
+            <div id="profileFormActions">
             <div class="form-group mb-3">
                 <label class="form-label" for="user_old_pass">
                     * <?php echo $setUp->getString("current_pass"); ?>
@@ -319,8 +322,48 @@ if ($gateKeeper->isUserLoggedIn() && $setUp->getConfig("show_usermenu") == true)
                     <i class="bi bi-arrow-repeat"></i> <?php print $setUp->getString("update"); ?>
                 </button>
             </div>
+            </div>
 
             </form>
+
+            <?php if ($gateKeeper->isSuperAdmin()) { ?>
+            <!-- Cloud Settings Tab Content (outside main form, uses AJAX) -->
+            <div id="cloudSettingsPanel" style="display:none;">
+                <div id="cloudSettingsAlert" class="d-none"></div>
+                <form id="cloudSettingsForm" autocomplete="off">
+                    <input type="hidden" name="csrf_token" value="<?php echo Utils::generateCsrfToken(); ?>">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold" for="cs_appname">
+                            <i class="bi bi-tag me-1"></i>Nama Cloud
+                        </label>
+                        <input type="text" class="form-control" id="cs_appname" name="appname" 
+                               value="<?php echo htmlspecialchars($setUp->getConfig('appname')); ?>" 
+                               placeholder="Cloud" required>
+                        <div class="form-text">Nama yang ditampilkan di header, title browser, dan footer.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold" for="cs_script_url">
+                            <i class="bi bi-link-45deg me-1"></i>Link Domain
+                        </label>
+                        <input type="url" class="form-control" id="cs_script_url" name="script_url" 
+                               value="<?php echo htmlspecialchars($setUp->getConfig('script_url')); ?>" 
+                               placeholder="https://cloud.example.com/" required>
+                        <div class="form-text">URL lengkap domain termasuk <code>https://</code> dan akhiri dengan <code>/</code></div>
+                    </div>
+                    <div class="bg-light rounded p-3 mb-3">
+                        <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            Perubahan domain akan mempengaruhi semua link di aplikasi termasuk logout, share link, dan redirect.
+                        </small>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="button" class="btn btn-primary" id="btnSaveCloudSettings">
+                            <i class="bi bi-check-circle me-1"></i>Simpan
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <?php } ?>
           </div> <!-- modal-body -->
         </div> <!-- modal-content -->
       </div> <!-- modal-dialog -->
@@ -329,68 +372,38 @@ if ($gateKeeper->isUserLoggedIn() && $setUp->getConfig("show_usermenu") == true)
 }
 
 /**
- * Cloud Settings Modal (SuperAdmin only)
+ * Cloud Settings JS in Update Profile (SuperAdmin only)
  */
 if ($gateKeeper->isUserLoggedIn() && $gateKeeper->isSuperAdmin()) { ?>
-    <div class="modal fade" id="cloudSettingsModal" tabindex="-1" aria-labelledby="cloudSettingsLabel" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="cloudSettingsLabel"><i class="bi bi-cloud-fill me-2"></i>Cloud Settings</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <div id="cloudSettingsAlert" class="d-none"></div>
-            <form id="cloudSettingsForm" autocomplete="off">
-                <input type="hidden" name="csrf_token" value="<?php echo Utils::generateCsrfToken(); ?>">
-                <div class="mb-3">
-                    <label class="form-label fw-semibold" for="cs_appname">
-                        <i class="bi bi-tag me-1"></i>Nama Cloud
-                    </label>
-                    <input type="text" class="form-control" id="cs_appname" name="appname" 
-                           value="<?php echo htmlspecialchars($setUp->getConfig('appname')); ?>" 
-                           placeholder="Cloud" required>
-                    <div class="form-text">Nama yang ditampilkan di header, title browser, dan footer.</div>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label fw-semibold" for="cs_script_url">
-                        <i class="bi bi-link-45deg me-1"></i>Link Domain
-                    </label>
-                    <input type="url" class="form-control" id="cs_script_url" name="script_url" 
-                           value="<?php echo htmlspecialchars($setUp->getConfig('script_url')); ?>" 
-                           placeholder="https://cloud.example.com/" required>
-                    <div class="form-text">URL lengkap domain termasuk <code>https://</code> dan akhiri dengan <code>/</code></div>
-                </div>
-                <div class="bg-light rounded p-3 mb-3">
-                    <small class="text-muted">
-                        <i class="bi bi-info-circle me-1"></i>
-                        Perubahan domain akan mempengaruhi semua link di aplikasi termasuk logout, share link, dan redirect.
-                    </small>
-                </div>
-            </form>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-            <button type="button" class="btn btn-primary" id="btnSaveCloudSettings">
-                <i class="bi bi-check-circle me-1"></i>Simpan
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <script>
     document.addEventListener('DOMContentLoaded', function() {
+        var cloudTab = document.querySelector('[data-bs-target="#cloudsettings"]');
+        var profileActions = document.getElementById('profileFormActions');
+        var cloudPanel = document.getElementById('cloudSettingsPanel');
         var btnSave = document.getElementById('btnSaveCloudSettings');
         var form = document.getElementById('cloudSettingsForm');
         var alertBox = document.getElementById('cloudSettingsAlert');
+
+        // Toggle profile form vs cloud settings panel
+        if (cloudTab && profileActions && cloudPanel) {
+            document.querySelectorAll('#userpanel .nav-link').forEach(function(tab) {
+                tab.addEventListener('shown.bs.tab', function(e) {
+                    if (e.target.getAttribute('data-bs-target') === '#cloudsettings') {
+                        profileActions.style.display = 'none';
+                        cloudPanel.style.display = 'block';
+                    } else {
+                        profileActions.style.display = '';
+                        cloudPanel.style.display = 'none';
+                    }
+                });
+            });
+        }
 
         if (btnSave) {
             btnSave.addEventListener('click', function() {
                 var appname = document.getElementById('cs_appname').value.trim();
                 var scriptUrl = document.getElementById('cs_script_url').value.trim();
 
-                // Client-side validation
                 if (appname.length < 1) {
                     showAlert('danger', 'Nama Cloud wajib diisi.');
                     return;
@@ -414,7 +427,6 @@ if ($gateKeeper->isUserLoggedIn() && $gateKeeper->isSuperAdmin()) { ?>
                 .then(function(data) {
                     if (data.status === 'success') {
                         showAlert('success', '<i class="bi bi-check-circle me-1"></i>' + data.message);
-                        // Update visible brand text
                         var brands = document.querySelectorAll('.navbar-brand');
                         brands.forEach(function(b) {
                             if (!b.querySelector('img')) b.textContent = data.appname;

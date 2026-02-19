@@ -137,10 +137,7 @@ if ($setUp->getConfig("txt_direction") == "RTL") {
                     </button>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="<?php echo $setUp->getConfig('script_url'); ?>"><i class="bi bi-house-door"></i></a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#cloudSettingsModal" title="Cloud Settings"><i class="bi bi-cloud-fill"></i></a>
+                    <a class="nav-link" href="<?php echo $setUp->getConfig('script_url'); ?>" title="<?php echo $setUp->getString("log_out"); ?>"><i class="bi bi-house-door"></i></a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="<?php echo $setUp->getConfig('script_url'); ?>?logout" title="<?php echo $setUp->getString("log_out"); ?>"><i class="bi bi-box-arrow-right"></i> </a>
@@ -309,113 +306,6 @@ if ($setUp->getConfig("txt_direction") == "RTL") {
         ?>
     </main>
 </div> <!-- supercontainer -->
-
-<!-- Cloud Settings Modal -->
-<div class="modal fade" id="cloudSettingsModal" tabindex="-1" aria-labelledby="cloudSettingsLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="cloudSettingsLabel"><i class="bi bi-cloud-fill me-2"></i>Cloud Settings</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <div id="cloudSettingsAlert" class="d-none"></div>
-        <form id="cloudSettingsForm" autocomplete="off">
-            <input type="hidden" name="csrf_token" value="<?php echo Utils::generateCsrfToken(); ?>">
-            <div class="mb-3">
-                <label class="form-label fw-semibold" for="cs_appname">
-                    <i class="bi bi-tag me-1"></i>Nama Cloud
-                </label>
-                <input type="text" class="form-control" id="cs_appname" name="appname" 
-                       value="<?php echo htmlspecialchars($setUp->getConfig('appname')); ?>" 
-                       placeholder="Cloud" required>
-                <div class="form-text">Nama yang ditampilkan di header, title browser, dan footer.</div>
-            </div>
-            <div class="mb-3">
-                <label class="form-label fw-semibold" for="cs_script_url">
-                    <i class="bi bi-link-45deg me-1"></i>Link Domain
-                </label>
-                <input type="url" class="form-control" id="cs_script_url" name="script_url" 
-                       value="<?php echo htmlspecialchars($setUp->getConfig('script_url')); ?>" 
-                       placeholder="https://cloud.example.com/" required>
-                <div class="form-text">URL lengkap domain termasuk <code>https://</code> dan akhiri dengan <code>/</code></div>
-            </div>
-            <div class="bg-light rounded p-3 mb-3">
-                <small class="text-muted">
-                    <i class="bi bi-info-circle me-1"></i>
-                    Perubahan domain akan mempengaruhi semua link di aplikasi termasuk logout, share link, dan redirect.
-                </small>
-            </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-        <button type="button" class="btn btn-primary" id="btnSaveCloudSettings">
-            <i class="bi bi-check-circle me-1"></i>Simpan
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    var btnSave = document.getElementById('btnSaveCloudSettings');
-    var form = document.getElementById('cloudSettingsForm');
-    var alertBox = document.getElementById('cloudSettingsAlert');
-
-    if (btnSave) {
-        btnSave.addEventListener('click', function() {
-            var appname = document.getElementById('cs_appname').value.trim();
-            var scriptUrl = document.getElementById('cs_script_url').value.trim();
-
-            if (appname.length < 1) {
-                showAlert('danger', 'Nama Cloud wajib diisi.');
-                return;
-            }
-            if (scriptUrl.length < 5) {
-                showAlert('danger', 'Link Domain wajib diisi.');
-                return;
-            }
-
-            btnSave.disabled = true;
-            btnSave.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Menyimpan...';
-
-            var formData = new FormData(form);
-
-            fetch('ajax/save-cloud-settings.php', {
-                method: 'POST',
-                headers: { 'X-Requested-With': 'XMLHttpRequest' },
-                body: formData
-            })
-            .then(function(r) { return r.json(); })
-            .then(function(data) {
-                if (data.status === 'success') {
-                    showAlert('success', '<i class="bi bi-check-circle me-1"></i>' + data.message);
-                    document.querySelector('.navbar-brand').textContent = data.appname;
-                    setTimeout(function() {
-                        window.location.href = data.script_url + 'admin/';
-                    }, 1500);
-                } else {
-                    showAlert('danger', '<i class="bi bi-exclamation-triangle me-1"></i>' + data.message);
-                }
-            })
-            .catch(function(err) {
-                showAlert('danger', '<i class="bi bi-exclamation-triangle me-1"></i>Gagal menyimpan: ' + err.message);
-            })
-            .finally(function() {
-                btnSave.disabled = false;
-                btnSave.innerHTML = '<i class="bi bi-check-circle me-1"></i>Simpan';
-            });
-        });
-    }
-
-    function showAlert(type, msg) {
-        alertBox.className = 'alert alert-' + type + ' mb-3';
-        alertBox.innerHTML = msg;
-    }
-});
-</script>
 
 </body>
 </html>
