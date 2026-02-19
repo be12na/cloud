@@ -1,0 +1,11 @@
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/bernab1/public_html/tes.berna.biz.id
+    # Copy root files
+    - /bin/cp -f .htaccess index.php $DEPLOYPATH/
+    # Sync admin code (preserve _content, tmp, config.json)
+    - /bin/cp -Rf admin/class admin/ajax admin/template admin/include admin/assets admin/icons admin/images admin/css admin/js admin/captcha admin/translations admin/admin-panel $DEPLOYPATH/cloud/admin/
+    - /bin/cp -f admin/*.php $DEPLOYPATH/cloud/admin/
+    # Sync config.json with new defaults from config.php
+    - /usr/local/bin/php $DEPLOYPATH/cloud/admin/deploy-sync-config.php
