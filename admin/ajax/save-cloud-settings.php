@@ -22,8 +22,8 @@ require_once dirname(dirname(__FILE__)).'/class/class.gatekeeper.php';
 $setUp = new SetUp();
 $gateKeeper = new GateKeeper();
 
-// Must be SuperAdmin
-if (!$gateKeeper->isUserLoggedIn() || !$gateKeeper->isSuperAdmin()) {
+// Must be logged in
+if (!$gateKeeper->isUserLoggedIn()) {
     echo json_encode(array('status' => 'error', 'message' => 'Unauthorized'));
     exit;
 }

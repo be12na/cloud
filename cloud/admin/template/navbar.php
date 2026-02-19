@@ -188,13 +188,11 @@ if ($gateKeeper->isUserLoggedIn() && $setUp->getConfig("show_usermenu") == true)
                     <?php echo $setUp->getString("avatar"); ?>
                 </button>
               </li>
-              <?php if ($gateKeeper->isSuperAdmin()) { ?>
               <li role="presentation" class="nav-item">
                 <button class="nav-link" data-bs-target="#cloudsettings" aria-controls="cloudsettings" role="tab" data-bs-toggle="pill">
                     <i class="bi bi-cloud-fill"></i> Cloud Settings
                 </button>
               </li>
-              <?php } ?>
             </ul>
 
             <form role="form" method="post" id="usrForm" autocomplete="off" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF'].'?'.$_SERVER['QUERY_STRING']);?>">
@@ -326,8 +324,7 @@ if ($gateKeeper->isUserLoggedIn() && $setUp->getConfig("show_usermenu") == true)
 
             </form>
 
-            <?php if ($gateKeeper->isSuperAdmin()) { ?>
-            <!-- Cloud Settings Tab Content (outside main form, uses AJAX) -->
+            <!-- Cloud Settings Tab Content (uses AJAX) -->
             <div id="cloudSettingsPanel" style="display:none;">
                 <div id="cloudSettingsAlert" class="d-none"></div>
                 <form id="cloudSettingsForm" autocomplete="off">
@@ -363,7 +360,6 @@ if ($gateKeeper->isUserLoggedIn() && $setUp->getConfig("show_usermenu") == true)
                     </div>
                 </form>
             </div>
-            <?php } ?>
           </div> <!-- modal-body -->
         </div> <!-- modal-content -->
       </div> <!-- modal-dialog -->
@@ -374,7 +370,7 @@ if ($gateKeeper->isUserLoggedIn() && $setUp->getConfig("show_usermenu") == true)
 /**
  * Cloud Settings JS in Update Profile (SuperAdmin only)
  */
-if ($gateKeeper->isUserLoggedIn() && $gateKeeper->isSuperAdmin()) { ?>
+if ($gateKeeper->isUserLoggedIn()) { ?>
     <script>
     document.addEventListener('DOMContentLoaded', function() {
         var cloudTab = document.querySelector('[data-bs-target="#cloudsettings"]');
