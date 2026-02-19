@@ -195,6 +195,26 @@ if (!class_exists('File', false)) {
         }
 
         /**
+         * Check if file is valid for creating video thumbnail
+         *
+         * @return true/false
+         */
+        public function isValidForVideoThumb()
+        {
+            $setUp = SetUp::getInstance();
+            if ($setUp->getConfig('video_thumbnails') !== true) {
+                return false;
+            }
+            if ($setUp->getConfig('thumbnails') !== true && $setUp->getConfig('inline_thumbs') !== true) {
+                return false;
+            }
+            if ($this->isVideo() && ImageServer::isEnabledFfmpeg()) {
+                return true;
+            }
+            return false;
+        }
+
+        /**
          * Check if file is valid for playing audio
          *
          * @return true/false

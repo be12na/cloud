@@ -152,8 +152,11 @@ if ($getdownloadlist && file_exists($share_json)) {
                         }
                         if (in_array($extension, $videotypes) && $setUp->getConfig('share_playvideo') === true) {
                             $typeclass = 'vid';
-                           // $iconclass = 'bi-play-btn';
-                            $iconimg = '<div style="width:2rem"><i class="bi bi-play-btn"></i></div>';
+                            if ($setUp->getConfig('video_thumbnails') === true && ImageServer::isEnabledFfmpeg()) {
+                                $iconimg = '<img style="height:3.5rem; width:3.5rem; max-width:none;" src="'.$imageServer->showThumbnail(base64_decode($pezzo), true).'?in=1">';
+                            } else {
+                                $iconimg = '<div style="width:2rem"><i class="bi bi-play-btn"></i></div>';
+                            }
                         }
                         // if (in_array($extension, $videotypes) && $setUp->getConfig('share_playvideo') === true) {
                         $imgdata .= ' data-name="'.$filename.'" data-link="'.$pezzo.'" data-linkencoded="'.$modal_downlink.'"';

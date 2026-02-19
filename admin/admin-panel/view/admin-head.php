@@ -36,6 +36,7 @@ if (file_exists('translations/en.json')) {
 }
 require_once 'class.php';
 require_once 'class/class.admin.php';
+require_once 'class/class.imageserver.php';
 
 $setUp = new SetUp();
 $gateKeeper = new GateKeeper();

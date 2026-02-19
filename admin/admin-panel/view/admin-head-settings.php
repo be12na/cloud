@@ -123,6 +123,13 @@ if (isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $_CONFIG['inline_thumbs'] = (isset($_POST['inline_thumbs']) ? true : false);
 
+    $_CONFIG['video_thumbnails'] = (isset($_POST['video_thumbnails']) ? true : false);
+
+    $_CONFIG['ffmpeg_path'] = filter_input(INPUT_POST, "ffmpeg_path", FILTER_SANITIZE_SPECIAL_CHARS);
+    if (empty($_CONFIG['ffmpeg_path'])) {
+        $_CONFIG['ffmpeg_path'] = 'ffmpeg';
+    }
+
     // delete all thumbnails if size changes
     if ($setUp->getConfig('thumbnails_width') !== (int) $postthumbw
         || $setUp->getConfig('thumbnails_height') !== (int) $postthumbh

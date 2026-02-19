@@ -1,4 +1,5 @@
 <?php
+require_once dirname(dirname(__FILE__)).'/class/class.utils.php';
 require_once dirname(dirname(__FILE__)).'/class/class.setup.php';
 $setUp = new SetUp();
 header("Expires: Tue, 01 Jan 2013 00:00:00 GMT"); 

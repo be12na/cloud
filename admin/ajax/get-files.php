@@ -12,6 +12,7 @@ if (!isset($_SERVER['HTTP_X_REQUESTED_WITH'])
 ) {
     exit;
 }
+require_once dirname(dirname(__FILE__)).'/class/class.utils.php';
 require_once dirname(dirname(__FILE__)).'/class/class.setup.php';
 
 $setUp = new SetUp();
@@ -21,7 +22,6 @@ if ($setUp->getConfig('debug_mode') === true) {
     ini_set('display_errors', 1);
 }
 @set_time_limit(0);
-require_once dirname(dirname(__FILE__)).'/class/class.utils.php';
 require_once dirname(dirname(__FILE__)).'/class/class.gatekeeper.php';
 require_once dirname(dirname(__FILE__)).'/class/class.location.php';
 
@@ -186,9 +186,11 @@ if ($gateKeeper->isAccessAllowed() && $location->editAllowed('../../') && $gateK
                     $imgdata .= ' data-type="video"';
                 }
 
-                if ($file->isValidForThumb()) {
+                if ($file->isValidForThumb() || $file->isValidForVideoThumb()) {
                     $hasimage = true;
-                    $imgdata .= ' data-type="image"';
+                    if (!$file->isValidForVideo()) {
+                        $imgdata .= ' data-type="image"';
+                    }
                 }
 
                 $data['check'] = '<div class="checkbox checkbox-primary checkbox-circle"><label class="round-btn"><input type="checkbox" name="selecta" class="selecta" value="'.$thislink.'"></label></div>';
@@ -219,7 +221,7 @@ if ($gateKeeper->isAccessAllowed() && $location->editAllowed('../../') && $gateK
                     if ($gateKeeper->isAllowed('download_enable')) {
                         $data['icon'] .= '<a href="'.$downlink.'" '.$imgdata.' '.$linktarget.' '.$itemclass.'>';
                     }
-                    if ($setUp->getConfig('inline_thumbs') == true && $file->isValidForThumb()) {
+                    if ($setUp->getConfig('inline_thumbs') == true && ($file->isValidForThumb() || $file->isValidForVideoThumb())) {
                         $data['icon'] .= '<div class="icon-placeholder"><img src="'.$imageServer->showThumbnail(base64_decode($thislink), true).'"></div>';
                     } else {
                         $data['icon'] .= '<div class="icon-placeholder"><div class="cta"><i class="bi bi-'.$thisicon.'"></i></div></div>';
@@ -228,7 +230,7 @@ if ($gateKeeper->isAccessAllowed() && $location->editAllowed('../../') && $gateK
 
                 $data['icon'] .= '<div class="hover end-0"><div><div class="round-btn">';
 
-                if ($file->isValidForThumb()) {
+                if ($file->isValidForThumb() || $file->isValidForVideoThumb()) {
                     $data['icon'] .= '<i class="bi bi-zoom-in"></i>';
                 } elseif ($file->isValidForVideo()) {
                     $data['icon'] .= '<i class="bi bi-play"></i>';
@@ -295,7 +297,7 @@ if ($gateKeeper->isAccessAllowed() && $location->editAllowed('../../') && $gateK
 
                 if ($gateKeeper->isAllowed('download_enable')) {
                     $data['file_name'] .= '<span class="hover end-0">';
-                    if ($file->isValidForThumb()) {
+                    if ($file->isValidForThumb() || $file->isValidForVideoThumb()) {
                         $data['file_name'] .= '<i class="bi bi-zoom-in"></i>';
                     } elseif (strtolower($ext) == 'pdf') {
                         $data['file_name'] .= '<i class="bi bi-chevron-right"></i>';

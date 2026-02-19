@@ -136,6 +136,8 @@
   'thumbnails' => true,
   'thumbnails_height' => 1000,
   'thumbnails_width' => 1000,
+  'video_thumbnails' => true,
+  'ffmpeg_path' => 'ffmpeg',
   'time_format' => 'd/m/Y - H:i',
   'txt_direction' => 'LTR',
   

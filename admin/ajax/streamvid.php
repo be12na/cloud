@@ -8,6 +8,7 @@
  *
  *
  */
+require_once dirname(dirname(__FILE__)).'/class/class.utils.php';
 require_once dirname(dirname(__FILE__)).'/class/class.setup.php';
 require_once dirname(dirname(__FILE__)).'/class/class.gatekeeper.php';
 $setUp = new SetUp();

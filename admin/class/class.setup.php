@@ -4,6 +4,8 @@
  *
  *
  */
+require_once dirname(__FILE__).'/class.utils.php';
+
 if (!class_exists('SetUp', false)) {
     /**
      * SetUp Class
