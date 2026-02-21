@@ -21,75 +21,88 @@ include __DIR__ . '/includes/header.php';
 include __DIR__ . '/includes/navbar.php';
 ?>
 
-<div class="container py-4">
+<div class="dash-wrapper">
     
     <?php if (hasFlash('success')): ?>
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="bi bi-check-circle-fill"></i> <?php echo e(getFlash('success')); ?>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <div style="max-width:960px;margin:0 auto 1.5rem;">
+            <div class="alert-box alert-success">
+                <span class="alert-icon"><i class="bi bi-check-circle-fill"></i></span>
+                <div><?php echo e(getFlash('success')); ?></div>
+                <button class="alert-close">&times;</button>
+            </div>
         </div>
     <?php endif; ?>
 
-    <div class="row">
-        <!-- Welcome Card -->
-        <div class="col-md-8">
-            <div class="card shadow-sm mb-4">
-                <div class="card-body">
-                    <div class="d-flex align-items-center mb-3">
-                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" 
-                             style="width: 60px; height: 60px; font-size: 1.5rem;">
-                            <?php echo e(strtoupper(mb_substr($user['name'], 0, 1))); ?>
-                        </div>
-                        <div>
-                            <h3 class="mb-0">Selamat datang, <?php echo e($user['name']); ?>!</h3>
-                            <p class="text-muted mb-0">Dashboard Member Area</p>
+    <!-- Welcome Banner -->
+    <div class="welcome-banner">
+        <div class="welcome-avatar">
+            <?php echo e(strtoupper(mb_substr($user['name'], 0, 1))); ?>
+        </div>
+        <div>
+            <h2>Selamat datang, <?php echo e($user['name']); ?>!</h2>
+            <p>Dashboard Member Area &mdash; kelola akun dan akses fitur Anda.</p>
+        </div>
+    </div>
+
+    <div class="dash-grid">
+        <!-- Main Content -->
+        <div>
+            <div class="dash-card">
+                <div class="dash-card-header">
+                    <i class="bi bi-shield-check"></i> Status Akun
+                </div>
+                <div class="dash-card-body">
+                    <p style="color:var(--gray-500);margin:0 0 1rem;font-size:.9rem;">
+                        Akun Anda aktif dan berjalan normal. Hanya user dengan role 
+                        <span class="badge-role"><i class="bi bi-star-fill"></i> member</span> 
+                        yang dapat mengakses halaman ini.
+                    </p>
+                    <div style="background:var(--gray-50);border-radius:var(--radius-sm);padding:1rem;border:1px solid var(--gray-200);">
+                        <div style="display:flex;align-items:center;gap:.5rem;color:var(--success);font-weight:600;font-size:.9rem;">
+                            <i class="bi bi-check-circle-fill"></i> Akun terverifikasi &amp; aktif
                         </div>
                     </div>
-                    <hr>
-                    <p class="text-muted">
-                        Ini adalah halaman dashboard member Anda. Hanya user dengan role 
-                        <span class="badge bg-primary">member</span> yang dapat mengakses halaman ini.
-                    </p>
                 </div>
             </div>
         </div>
 
-        <!-- Info Card -->
-        <div class="col-md-4">
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-dark text-white">
-                    <i class="bi bi-info-circle"></i> Informasi Akun
+        <!-- Sidebar -->
+        <div>
+            <!-- Account Info -->
+            <div class="dash-card" style="margin-bottom:1.5rem;">
+                <div class="dash-card-header">
+                    <i class="bi bi-person"></i> Informasi Akun
                 </div>
-                <div class="card-body">
-                    <table class="table table-borderless table-sm mb-0">
-                        <tr>
-                            <td class="text-muted"><i class="bi bi-person"></i> Nama</td>
-                            <td><strong><?php echo e($user['name']); ?></strong></td>
-                        </tr>
-                        <tr>
-                            <td class="text-muted"><i class="bi bi-shield"></i> Role</td>
-                            <td><span class="badge bg-primary"><?php echo e($user['role']); ?></span></td>
-                        </tr>
-                        <tr>
-                            <td class="text-muted"><i class="bi bi-hash"></i> ID</td>
-                            <td><?php echo e((string) $user['id']); ?></td>
-                        </tr>
-                    </table>
+                <div class="dash-card-body">
+                    <div class="info-row">
+                        <span class="info-label"><i class="bi bi-person"></i> Nama</span>
+                        <span class="info-value"><?php echo e($user['name']); ?></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label"><i class="bi bi-shield"></i> Role</span>
+                        <span class="badge-role"><i class="bi bi-star-fill"></i> <?php echo e($user['role']); ?></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label"><i class="bi bi-hash"></i> ID</span>
+                        <span class="info-value">#<?php echo e((string) $user['id']); ?></span>
+                    </div>
                 </div>
             </div>
 
             <!-- Quick Actions -->
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-dark text-white">
+            <div class="dash-card">
+                <div class="dash-card-header">
                     <i class="bi bi-lightning"></i> Aksi Cepat
                 </div>
-                <div class="card-body d-grid gap-2">
-                    <a href="<?php echo e(SITE_BASE_URL ?: '/'); ?>" class="btn btn-outline-primary">
-                        <i class="bi bi-folder2-open"></i> Buka File Manager
-                    </a>
-                    <a href="<?php echo e(MEMBER_BASE_URL); ?>/logout.php" class="btn btn-outline-danger">
-                        <i class="bi bi-box-arrow-right"></i> Logout
-                    </a>
+                <div class="dash-card-body">
+                    <div class="action-list">
+                        <a href="<?php echo e(SITE_BASE_URL ?: '/'); ?>" class="btn-outline-custom" style="width:100%;justify-content:center;">
+                            <i class="bi bi-folder2-open"></i> Buka File Manager
+                        </a>
+                        <a href="<?php echo e(MEMBER_BASE_URL); ?>/logout.php" class="btn-outline-danger" style="width:100%;justify-content:center;">
+                            <i class="bi bi-box-arrow-right"></i> Logout
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>

@@ -80,79 +80,81 @@ include __DIR__ . '/includes/header.php';
 include __DIR__ . '/includes/navbar.php';
 ?>
 
-<div class="container py-4">
-    <div class="form-card">
-        <div class="card shadow-sm">
-            <div class="card-header bg-dark text-white text-center">
-                <h4 class="mb-0"><i class="bi bi-box-arrow-in-right"></i> Login Member</h4>
-            </div>
-            <div class="card-body p-4">
+<div class="auth-wrapper">
+    <div class="auth-card">
+        <div class="auth-card-header" style="background: linear-gradient(135deg, var(--dark), var(--dark-soft));">
+            <div class="auth-icon"><i class="bi bi-box-arrow-in-right"></i></div>
+            <h2>Selamat Datang</h2>
+            <p>Masuk ke akun member Anda</p>
+        </div>
+        <div class="auth-card-body">
 
-                <?php if (hasFlash('error')): ?>
-                    <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                        <i class="bi bi-exclamation-triangle"></i> <?php echo e(getFlash('error')); ?>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <?php if (hasFlash('error')): ?>
+                <div class="alert-box alert-warning">
+                    <span class="alert-icon"><i class="bi bi-exclamation-triangle-fill"></i></span>
+                    <div><?php echo e(getFlash('error')); ?></div>
+                    <button class="alert-close">&times;</button>
+                </div>
+            <?php endif; ?>
+
+            <?php if (hasFlash('success')): ?>
+                <div class="alert-box alert-success">
+                    <span class="alert-icon"><i class="bi bi-check-circle-fill"></i></span>
+                    <div><?php echo e(getFlash('success')); ?></div>
+                    <button class="alert-close">&times;</button>
+                </div>
+            <?php endif; ?>
+
+            <?php if (!empty($errors)): ?>
+                <div class="alert-box alert-danger">
+                    <span class="alert-icon"><i class="bi bi-exclamation-circle-fill"></i></span>
+                    <div>
+                        <?php foreach ($errors as $error): ?>
+                            <div><?php echo e($error); ?></div>
+                        <?php endforeach; ?>
                     </div>
-                <?php endif; ?>
+                    <button class="alert-close">&times;</button>
+                </div>
+            <?php endif; ?>
 
-                <?php if (!empty($errors)): ?>
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        <strong><i class="bi bi-exclamation-triangle"></i> Error:</strong>
-                        <ul class="mb-0 mt-1">
-                            <?php foreach ($errors as $error): ?>
-                                <li><?php echo e($error); ?></li>
-                            <?php endforeach; ?>
-                        </ul>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                <?php endif; ?>
+            <form method="POST" action="" novalidate>
+                <?php echo Csrf::field(); ?>
 
-                <form method="POST" action="" novalidate>
-                    <?php echo Csrf::field(); ?>
-
-                    <!-- Email -->
-                    <div class="mb-3">
-                        <label for="email" class="form-label">
-                            <i class="bi bi-envelope"></i> Email
-                        </label>
+                <!-- Email -->
+                <div class="form-group">
+                    <label for="email">Alamat Email</label>
+                    <div class="form-input-wrap">
+                        <i class="bi bi-envelope form-input-icon"></i>
                         <input type="email" 
-                               class="form-control" 
+                               class="form-input" 
                                id="email" name="email" 
                                value="<?php echo old('email'); ?>" 
-                               placeholder="contoh@email.com"
+                               placeholder="nama@email.com"
                                required autofocus>
                     </div>
+                </div>
 
-                    <!-- Password -->
-                    <div class="mb-3">
-                        <label for="password" class="form-label">
-                            <i class="bi bi-lock"></i> Password
-                        </label>
-                        <div class="input-group">
-                            <input type="password" 
-                                   class="form-control" 
-                                   id="password" name="password" 
-                                   placeholder="Masukkan password"
-                                   required>
-                            <button class="btn btn-outline-secondary password-toggle" type="button">
-                                <i class="bi bi-eye"></i>
-                            </button>
-                        </div>
+                <!-- Password -->
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="form-input-wrap">
+                        <i class="bi bi-lock form-input-icon"></i>
+                        <input type="password" 
+                               class="form-input" 
+                               id="password" name="password" 
+                               placeholder="Masukkan password"
+                               required>
+                        <button type="button" class="pw-toggle"><i class="bi bi-eye"></i></button>
                     </div>
+                </div>
 
-                    <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-dark btn-lg">
-                            <i class="bi bi-box-arrow-in-right"></i> Login
-                        </button>
-                    </div>
-                </form>
-
-                <hr>
-                <p class="text-center text-muted mb-0">
-                    Belum punya akun? 
-                    <a href="<?php echo e(MEMBER_BASE_URL); ?>/register.php">Register di sini</a>
-                </p>
-            </div>
+                <button type="submit" class="btn-dark-custom">
+                    <i class="bi bi-box-arrow-in-right"></i> Login
+                </button>
+            </form>
+        </div>
+        <div class="auth-footer">
+            Belum punya akun? <a href="<?php echo e(MEMBER_BASE_URL); ?>/register.php">Daftar sekarang</a>
         </div>
     </div>
 </div>

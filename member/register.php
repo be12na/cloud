@@ -94,114 +94,109 @@ include __DIR__ . '/includes/header.php';
 include __DIR__ . '/includes/navbar.php';
 ?>
 
-<div class="container py-4">
-    <div class="form-card">
-        <div class="card shadow-sm">
-            <div class="card-header bg-primary text-white text-center">
-                <h4 class="mb-0"><i class="bi bi-person-plus-fill"></i> Register Member</h4>
-            </div>
-            <div class="card-body p-4">
+<div class="auth-wrapper">
+    <div class="auth-card">
+        <div class="auth-card-header">
+            <div class="auth-icon"><i class="bi bi-person-plus-fill"></i></div>
+            <h2>Buat Akun Baru</h2>
+            <p>Daftar untuk mendapatkan akses member</p>
+        </div>
+        <div class="auth-card-body">
 
-                <?php if (!empty($errors)): ?>
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        <strong><i class="bi bi-exclamation-triangle"></i> Error:</strong>
-                        <ul class="mb-0 mt-1">
-                            <?php foreach ($errors as $error): ?>
-                                <li><?php echo e($error); ?></li>
-                            <?php endforeach; ?>
-                        </ul>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <?php if (!empty($errors)): ?>
+                <div class="alert-box alert-danger">
+                    <span class="alert-icon"><i class="bi bi-exclamation-circle-fill"></i></span>
+                    <div>
+                        <?php foreach ($errors as $error): ?>
+                            <div><?php echo e($error); ?></div>
+                        <?php endforeach; ?>
                     </div>
-                <?php endif; ?>
+                    <button class="alert-close">&times;</button>
+                </div>
+            <?php endif; ?>
 
-                <form method="POST" action="" novalidate>
-                    <?php echo Csrf::field(); ?>
+            <form method="POST" action="" novalidate>
+                <?php echo Csrf::field(); ?>
 
-                    <!-- Name -->
-                    <div class="mb-3">
-                        <label for="name" class="form-label">
-                            <i class="bi bi-person"></i> Nama <span class="text-danger">*</span>
-                        </label>
+                <!-- Name -->
+                <div class="form-group">
+                    <label for="name">Nama Lengkap</label>
+                    <div class="form-input-wrap">
+                        <i class="bi bi-person form-input-icon"></i>
                         <input type="text" 
-                               class="form-control <?php echo isset($errors['name']) ? 'is-invalid' : ''; ?>" 
+                               class="form-input <?php echo isset($errors['name']) ? 'is-invalid' : ''; ?>" 
                                id="name" name="name" 
                                value="<?php echo old('name'); ?>" 
-                               placeholder="Nama lengkap (min. 2 karakter)"
+                               placeholder="Masukkan nama lengkap"
                                required minlength="2" maxlength="100" autofocus>
-                        <?php if (isset($errors['name'])): ?>
-                            <div class="invalid-feedback"><?php echo e($errors['name']); ?></div>
-                        <?php endif; ?>
                     </div>
+                    <?php if (isset($errors['name'])): ?>
+                        <div class="input-feedback"><i class="bi bi-exclamation-circle"></i> <?php echo e($errors['name']); ?></div>
+                    <?php endif; ?>
+                </div>
 
-                    <!-- Email -->
-                    <div class="mb-3">
-                        <label for="email" class="form-label">
-                            <i class="bi bi-envelope"></i> Email <span class="text-danger">*</span>
-                        </label>
+                <!-- Email -->
+                <div class="form-group">
+                    <label for="email">Alamat Email</label>
+                    <div class="form-input-wrap">
+                        <i class="bi bi-envelope form-input-icon"></i>
                         <input type="email" 
-                               class="form-control <?php echo isset($errors['email']) ? 'is-invalid' : ''; ?>" 
+                               class="form-input <?php echo isset($errors['email']) ? 'is-invalid' : ''; ?>" 
                                id="email" name="email" 
                                value="<?php echo old('email'); ?>" 
-                               placeholder="contoh@email.com"
+                               placeholder="nama@email.com"
                                required maxlength="255">
-                        <?php if (isset($errors['email'])): ?>
-                            <div class="invalid-feedback"><?php echo e($errors['email']); ?></div>
-                        <?php endif; ?>
                     </div>
+                    <?php if (isset($errors['email'])): ?>
+                        <div class="input-feedback"><i class="bi bi-exclamation-circle"></i> <?php echo e($errors['email']); ?></div>
+                    <?php endif; ?>
+                </div>
 
-                    <!-- Password -->
-                    <div class="mb-3">
-                        <label for="password" class="form-label">
-                            <i class="bi bi-lock"></i> Password <span class="text-danger">*</span>
-                        </label>
-                        <div class="input-group">
-                            <input type="password" 
-                                   class="form-control <?php echo isset($errors['password']) ? 'is-invalid' : ''; ?>" 
-                                   id="password" name="password" 
-                                   placeholder="Minimal 8 karakter"
-                                   required minlength="8" maxlength="255">
-                            <button class="btn btn-outline-secondary password-toggle" type="button">
-                                <i class="bi bi-eye"></i>
-                            </button>
-                            <?php if (isset($errors['password'])): ?>
-                                <div class="invalid-feedback"><?php echo e($errors['password']); ?></div>
-                            <?php endif; ?>
-                        </div>
+                <!-- Password -->
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="form-input-wrap">
+                        <i class="bi bi-lock form-input-icon"></i>
+                        <input type="password" 
+                               class="form-input <?php echo isset($errors['password']) ? 'is-invalid' : ''; ?>" 
+                               id="password" name="password" 
+                               placeholder="Minimal 8 karakter"
+                               required minlength="8" maxlength="255">
+                        <button type="button" class="pw-toggle"><i class="bi bi-eye"></i></button>
                     </div>
-
-                    <!-- Password Confirmation -->
-                    <div class="mb-3">
-                        <label for="password_confirmation" class="form-label">
-                            <i class="bi bi-lock-fill"></i> Konfirmasi Password <span class="text-danger">*</span>
-                        </label>
-                        <div class="input-group">
-                            <input type="password" 
-                                   class="form-control <?php echo isset($errors['password_confirmation']) ? 'is-invalid' : ''; ?>" 
-                                   id="password_confirmation" name="password_confirmation" 
-                                   placeholder="Ulangi password"
-                                   required minlength="8" maxlength="255">
-                            <button class="btn btn-outline-secondary password-toggle" type="button">
-                                <i class="bi bi-eye"></i>
-                            </button>
-                            <?php if (isset($errors['password_confirmation'])): ?>
-                                <div class="invalid-feedback"><?php echo e($errors['password_confirmation']); ?></div>
-                            <?php endif; ?>
-                        </div>
+                    <?php if (isset($errors['password'])): ?>
+                        <div class="input-feedback"><i class="bi bi-exclamation-circle"></i> <?php echo e($errors['password']); ?></div>
+                    <?php endif; ?>
+                    <div class="pw-strength">
+                        <div class="pw-bar"><div class="pw-bar-fill"></div></div>
+                        <div class="pw-text"></div>
                     </div>
+                </div>
 
-                    <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-primary btn-lg">
-                            <i class="bi bi-check-circle"></i> Register
-                        </button>
+                <!-- Password Confirmation -->
+                <div class="form-group">
+                    <label for="password_confirmation">Konfirmasi Password</label>
+                    <div class="form-input-wrap">
+                        <i class="bi bi-lock-fill form-input-icon"></i>
+                        <input type="password" 
+                               class="form-input <?php echo isset($errors['password_confirmation']) ? 'is-invalid' : ''; ?>" 
+                               id="password_confirmation" name="password_confirmation" 
+                               placeholder="Ulangi password"
+                               required minlength="8" maxlength="255">
+                        <button type="button" class="pw-toggle"><i class="bi bi-eye"></i></button>
                     </div>
-                </form>
+                    <?php if (isset($errors['password_confirmation'])): ?>
+                        <div class="input-feedback"><i class="bi bi-exclamation-circle"></i> <?php echo e($errors['password_confirmation']); ?></div>
+                    <?php endif; ?>
+                </div>
 
-                <hr>
-                <p class="text-center text-muted mb-0">
-                    Sudah punya akun? 
-                    <a href="<?php echo e(MEMBER_BASE_URL); ?>/login.php">Login di sini</a>
-                </p>
-            </div>
+                <button type="submit" class="btn-primary-custom">
+                    <i class="bi bi-check-circle"></i> Buat Akun
+                </button>
+            </form>
+        </div>
+        <div class="auth-footer">
+            Sudah punya akun? <a href="<?php echo e(MEMBER_BASE_URL); ?>/login.php">Login di sini</a>
         </div>
     </div>
 </div>
