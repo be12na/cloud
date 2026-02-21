@@ -72,6 +72,11 @@ if ($gateKeeper->isUserLoggedIn()) {
             <i class="bi bi-box-arrow-right"></i> <?php echo $setUp->getString("log_in"); ?>
         </a>
     </li>
+    <li class="nav-item">
+        <a class="nav-link" href="<?php echo $setUp->getConfig("script_url"); ?>member/register.php">
+            <i class="bi bi-person-plus"></i> Register Member
+        </a>
+    </li>
     <?php
 }
 
