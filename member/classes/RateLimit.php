@@ -8,16 +8,23 @@
 
 class RateLimit
 {
-    private PDO $db;
+    /** @var PDO */
+    private $db;
+
+    /** @var int */
+    private $maxAttempts;
+
+    /** @var int */
+    private $windowSeconds;
 
     /**
      * @param int $maxAttempts  Maksimal percobaan dalam window
      * @param int $windowSeconds  Durasi window dalam detik (default: 300 = 5 menit)
      */
-    public function __construct(
-        private int $maxAttempts = 5,
-        private int $windowSeconds = 300
-    ) {
+    public function __construct($maxAttempts = 5, $windowSeconds = 300)
+    {
+        $this->maxAttempts = $maxAttempts;
+        $this->windowSeconds = $windowSeconds;
         $this->db = Database::getConnection();
     }
 

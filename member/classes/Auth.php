@@ -66,9 +66,11 @@ class Auth
     /**
      * Attempt login dengan email dan password.
      * 
+     * @param string $email
+     * @param string $password
      * @return array|false User data jika berhasil, false jika gagal
      */
-    public static function attempt(string $email, string $password): array|false
+    public static function attempt($email, $password)
     {
         $db = Database::getConnection();
 

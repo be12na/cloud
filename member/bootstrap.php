@@ -55,11 +55,23 @@ if (!defined('SITE_BASE_URL')) {
 
 // Autoload classes
 $classDir = __DIR__ . '/classes';
-require_once $classDir . '/Database.php';
-require_once $classDir . '/Csrf.php';
-require_once $classDir . '/Validator.php';
-require_once $classDir . '/RateLimit.php';
-require_once $classDir . '/Auth.php';
+
+try {
+    require_once $classDir . '/Database.php';
+    require_once $classDir . '/Csrf.php';
+    require_once $classDir . '/Validator.php';
+    require_once $classDir . '/RateLimit.php';
+    require_once $classDir . '/Auth.php';
+} catch (Exception $e) {
+    error_log('Member bootstrap class load error: ' . $e->getMessage());
+    http_response_code(500);
+    exit('<h2>System Error</h2><p>Gagal memuat komponen system. Silakan hubungi administrator.</p>');
+}
 
 // Generate CSRF token untuk setiap request
-$csrfToken = Csrf::generateToken();
+try {
+    $csrfToken = Csrf::generateToken();
+} catch (Exception $e) {
+    error_log('CSRF token generation failed: ' . $e->getMessage());
+    $csrfToken = '';
+}

@@ -8,12 +8,14 @@
 
 class Database
 {
-    private static ?PDO $instance = null;
+    /** @var PDO|null */
+    private static $instance = null;
 
     /**
      * Mendapatkan koneksi PDO (singleton).
+     * @return PDO
      */
-    public static function getConnection(): PDO
+    public static function getConnection()
     {
         if (self::$instance === null) {
             $config = require __DIR__ . '/../config/database.php';

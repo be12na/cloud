@@ -7,8 +7,11 @@
 
 class Validator
 {
-    private array $errors = [];
-    private array $data;
+    /** @var array */
+    private $errors = [];
+
+    /** @var array */
+    private $data;
 
     public function __construct(array $data)
     {
