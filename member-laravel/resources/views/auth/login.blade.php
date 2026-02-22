@@ -72,7 +72,7 @@
         </div>
 
         <div class="auth-foot">
-            Belum punya akun? <a href="{{ route('member.register') }}">Daftar sekarang</a>
+            Belum punya akun? Hubungi administrator untuk pembuatan akun.
         </div>
     </div>
 </div>

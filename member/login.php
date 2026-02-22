@@ -154,7 +154,7 @@ include __DIR__ . '/includes/navbar.php';
             </form>
         </div>
         <div class="auth-footer">
-            Belum punya akun? <a href="<?php echo e(MEMBER_BASE_URL); ?>/register.php">Daftar sekarang</a>
+            Belum punya akun? Hubungi administrator untuk pembuatan akun.
         </div>
     </div>
 </div>

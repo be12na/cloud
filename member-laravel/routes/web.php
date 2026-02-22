@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Member\DashboardController;
 use Illuminate\Support\Facades\Route;
 
@@ -22,9 +21,6 @@ Route::get('/', function () {
 
 // ─── Guest Only (belum login) ───
 Route::middleware('guest')->group(function () {
-    Route::get('/member/register', [RegisterController::class, 'showRegistrationForm'])->name('member.register');
-    Route::post('/member/register', [RegisterController::class, 'register'])->name('member.register.submit')->middleware('throttle:5,5');
-
     Route::get('/member/login', [LoginController::class, 'showLoginForm'])->name('member.login');
     Route::post('/member/login', [LoginController::class, 'login'])->name('member.login.submit')->middleware('throttle:5,5');
 });

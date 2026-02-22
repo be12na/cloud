@@ -22,11 +22,6 @@ $currentPage = basename($_SERVER['SCRIPT_NAME']);
 
             <?php if (Auth::isGuest()): ?>
                 <li>
-                    <a href="<?php echo e(MEMBER_BASE_URL); ?>/register.php" <?php echo $currentPage === 'register.php' ? 'class="active"' : ''; ?>>
-                        <i class="bi bi-person-plus"></i> Register
-                    </a>
-                </li>
-                <li>
                     <a href="<?php echo e(MEMBER_BASE_URL); ?>/login.php" <?php echo $currentPage === 'login.php' ? 'class="active"' : ''; ?>>
                         <i class="bi bi-box-arrow-in-right"></i> Login
                     </a>
