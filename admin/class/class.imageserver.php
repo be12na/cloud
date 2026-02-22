@@ -127,14 +127,12 @@ if (!class_exists('ImageServer', false)) {
                 return false;
             }
 
-            // Create temp file for the extracted frame
             $tempFile = tempnam(sys_get_temp_dir(), 'vfm_vid_');
             $tempJpg = $tempFile . '.jpg';
 
-            // Extract frame at 1 second (or first frame if video is shorter)
             $cmd = escapeshellarg($ffmpeg)
-                . ' -i ' . escapeshellarg($filepath)
-                . ' -ss 00:00:01 -vframes 1 -f image2'
+                . ' -ss 00:00:01 -i ' . escapeshellarg($filepath)
+                . ' -vframes 1 -f image2'
                 . ' -y ' . escapeshellarg($tempJpg)
                 . ' 2>&1';
 
@@ -142,7 +140,6 @@ if (!class_exists('ImageServer', false)) {
             $returnVar = -1;
             @exec($cmd, $output, $returnVar);
 
-            // If 1 second failed, try first frame
             if ($returnVar !== 0 || !file_exists($tempJpg) || filesize($tempJpg) === 0) {
                 $cmd = escapeshellarg($ffmpeg)
                     . ' -i ' . escapeshellarg($filepath)
@@ -316,6 +313,10 @@ if (!class_exists('ImageServer', false)) {
             $imageInfo = false;
             $ext = strtolower(Utils::getFileExtension($file));
 
+            if (!file_exists($filepath)) {
+                return false;
+            }
+
             if ($inline == true) {
                 // $thumbsize = $setUp->getConfig('inline_tw');
                 $thumbsize = 420;
@@ -420,8 +421,7 @@ if (!class_exists('ImageServer', false)) {
 
             $filepath = dirname(dirname(dirname(__FILE__))).'/'.$realfile;
 
-            $filemtime = filemtime($filepath);
-            $filetime = $filemtime ? $filemtime : 'no-data';
+            $filetime = file_exists($filepath) ? filemtime($filepath) : 'no-data';
             $md5name = md5($file.$filetime);
             $thumbname = $inline ? $md5name.'.jpg' : $md5name.'-big.jpg';
             $thumbpath = $thumbsdir.'/'.$thumbname;

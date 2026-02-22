@@ -16,6 +16,7 @@ Route::get('/', function () {
     if (auth()->check()) {
         return redirect()->route('member.dashboard');
     }
+
     return redirect()->route('member.login');
 });
 

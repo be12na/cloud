@@ -27,27 +27,27 @@ class RegisterController extends Controller
     public function register(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'name'     => ['required', 'string', 'min:2', 'max:100'],
-            'email'    => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'name' => ['required', 'string', 'min:2', 'max:100'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'max:255', 'confirmed'],
         ], [
-            'name.required'      => 'Nama wajib diisi.',
-            'name.min'           => 'Nama minimal 2 karakter.',
-            'name.max'           => 'Nama maksimal 100 karakter.',
-            'email.required'     => 'Email wajib diisi.',
-            'email.email'        => 'Format email tidak valid.',
-            'email.unique'       => 'Email sudah terdaftar.',
-            'password.required'  => 'Password wajib diisi.',
-            'password.min'       => 'Password minimal 8 karakter.',
+            'name.required' => 'Nama wajib diisi.',
+            'name.min' => 'Nama minimal 2 karakter.',
+            'name.max' => 'Nama maksimal 100 karakter.',
+            'email.required' => 'Email wajib diisi.',
+            'email.email' => 'Format email tidak valid.',
+            'email.unique' => 'Email sudah terdaftar.',
+            'password.required' => 'Password wajib diisi.',
+            'password.min' => 'Password minimal 8 karakter.',
             'password.confirmed' => 'Konfirmasi password tidak cocok.',
         ]);
 
         // Buat user baru dengan role = member
         $user = User::create([
-            'name'     => $validated['name'],
-            'email'    => $validated['email'],
+            'name' => $validated['name'],
+            'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
-            'role'     => 'member',
+            'role' => 'member',
         ]);
 
         // Langsung login tanpa email verification
@@ -58,6 +58,6 @@ class RegisterController extends Controller
 
         return redirect()
             ->route('member.dashboard')
-            ->with('success', 'Registrasi berhasil! Selamat datang, ' . $user->name . '.');
+            ->with('success', 'Registrasi berhasil! Selamat datang, '.$user->name.'.');
     }
 }
