@@ -4,7 +4,7 @@
   0 => 
   array (
     'name' => 'superadmin',
-    'pass' => '$1$XIBCBLJb$f/OpbVOfH1h99GYcU/C0E.',
+    'pass' => '$2y$10$fBgjO1GO3cR170YWMD8gfue7suQKHi5ePh9XAWQZ7XPgfC1ufBLP2',
     'role' => 'superadmin',
   ),
   1 => 
